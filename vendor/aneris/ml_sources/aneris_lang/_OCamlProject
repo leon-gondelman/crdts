@@ -1,0 +1,26 @@
+OUTPUT_ROOT:
+	ml_sources theories
+
+IMPORT_PATH_PREFIX:
+
+	ml_sources aneris
+
+ML_SOURCES:
+
+	aneris_lang/lib/network_util_code.ml
+	aneris_lang/lib/list_code.ml
+        aneris_lang/lib/queue_code.ml
+	aneris_lang/lib/set_code.ml
+	aneris_lang/lib/map_code.ml
+	aneris_lang/lib/bag_code.ml
+	aneris_lang/lib/nodup_code.ml
+	aneris_lang/lib/coin_flip_code.ml
+	aneris_lang/lib/serialization/serialization_code.ml
+	aneris_lang/lib/vector_clock/vector_clock_code.ml
+
+ML_DEPENDENCIES:
+
+        aneris_lang
+	aneris_lang/lib
+        aneris_lang/lib/serialization
+	aneris_lang/lib/vector_clock
