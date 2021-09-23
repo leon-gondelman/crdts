@@ -1,23 +1,23 @@
 
 # Assignment 1
 
-The main goal of this assignment is two_fold:
+The main goal of this assignment is twofold:
 
 - Firstly, to implement two op-based CRDTs, namely GSet and 2PSet,
   following the description in the 8.1.2 and 8.1.3 respectively
   of the "Pure Operation-Based Replicated Data Types" paper.
 
   Provide your implementations in the files
-  ~/repositories/aneris/crdts/ml_sources/rcb/crdt/gset/gset_code.ml
-  ~/repositories/aneris/crdts/ml_sources/rcb/crdt/two_pset/two_pset_code.ml
+  `/ml_sources/rcb/crdt/gset/gset_code.ml`
+  `/ml_sources/rcb/crdt/two_pset/two_pset_code.ml`
 
   and provide testing for them in the files
-    Provide your implementations in the files
-  ~/repositories/aneris/crdts/ml_sources/rcb/crdt/gset/gset_code_runner.ml
-  ~/repositories/aneris/crdts/ml_sources/rcb/crdt/two_pset/two_pset_code_runner.ml
+  `/ml_sources/rcb/crdt/gset/gset_code_runner.ml`
+  `/ml_sources/rcb/crdt/two_pset/two_pset_code_runner.ml `
 
   In this assignment, you can simply try to adapt code from
-  `ml_sources/rcb/crdt/counter/counter_code.ml` and `ml_sources/rcb/crdt/counter/counter_runner.ml.`
+  `/ml_sources/rcb/crdt/counter/counter_code.ml` and
+  `/ml_sources/rcb/crdt/counter/counter_runner.ml`
   files for your implementations.
 
 
