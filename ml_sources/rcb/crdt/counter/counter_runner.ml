@@ -7,15 +7,15 @@ open Counter_code
 let handle_io i rd upd =
   let s = read_line () in
   match String.split_on_char ' ' s with
-  | [ "read" ] -> Printf.printf "CTR[%n] : %n\n" i (rd ())
+  | [ "read" ] -> Printf.printf "CTR[%d] : %d\n" i (rd ())
   | [ "inc"; v_str ] ->
       let v = int_of_string v_str in
       let () = upd v in
-      Printf.printf "CTR[%n] : %n\n" i (rd ())
+      Printf.printf "CTR[%d] : %d\n" i (rd ())
   | [ "dec"; v_str ] ->
       let v = int_of_string v_str in
       let () = upd (-v) in
-      Printf.printf "CTR[%n] : %n\n" i (rd ())
+      Printf.printf "CTR[%d] : %d\n" i (rd ())
   | "close" :: _ -> exit 0
   | _ -> Printf.printf "invalid command \n"
 

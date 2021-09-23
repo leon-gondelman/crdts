@@ -10,6 +10,9 @@ ML_SOURCES:
 	rcb/rcb_code.ml
         rcb/crdt/counter/counter_code.ml
         rcb/crdt/dynamo/dynamo_code.ml
+        rcb/crdt/gset/gset_code.ml
+	rcb/crdt/two_pset/two_pset_code.ml
+
 
 ML_DEPENDENCIES:
 	rcb/

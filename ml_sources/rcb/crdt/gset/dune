@@ -1,0 +1,4 @@
+(executable
+  (name gset_runner)
+  (flags :standard -rectypes)
+  (libraries rcb_code aneris))
