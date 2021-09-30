@@ -25,7 +25,7 @@ let effect message addSet removeSet =
     if op = "add" && not (set_mem value removeSet) then (
     ( removeSet, set_add value addSet ))
     else if op = "rmv" then (
-        (set_add value removeSet, list_filter (fun x -> x <>6 value) addSet)
+        (set_add value removeSet, list_filter (fun x -> x <> value) addSet)
     )
     else (removeSet, addSet)
 
