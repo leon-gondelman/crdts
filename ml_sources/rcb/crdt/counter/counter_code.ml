@@ -47,4 +47,4 @@ let counter_init addrs rid =
   let counter = ref 0 in
   let lock = newlock () in
   fork (apply_thread lock counter) deliver;
-  (read lock counter, upd lock broadcast counter)
+  ( read lock counter,upd lock broadcast counter)
