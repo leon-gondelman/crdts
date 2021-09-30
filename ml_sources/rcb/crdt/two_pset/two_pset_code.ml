@@ -21,7 +21,8 @@ let op_deser = prod_deser string_deser string_deser
 let eval query (set:string aset) = if query = "elems" then (InjL set) else (InjR (set_cardinal set))
 
 let effect message addSet removeSet = 
-    let (op, value) = (fst (fst message)) in 
+    let op = fst (fst (fst message)) in 
+    let value = snd (fst (fst message)) in 
     if op = "add" && not (set_mem value removeSet) then (
     ( removeSet, set_add value addSet ))
     else if op = "rmv" then (
@@ -30,15 +31,13 @@ let effect message addSet removeSet =
     else (removeSet, addSet)
 
     
-exception NotPossible
-
 let elems lock (set:string aset ref) () =
     acquire lock;
     let res = eval "elems" !set in 
     release lock;
     match res with
     | InjL set -> set
-    | _ -> prerr_string "Not possible"; raise NotPossible
+    | _ -> prerr_string "Not possible"; exit 2 
 
 let size lock set () =
     acquire lock; 
@@ -46,7 +45,7 @@ let size lock set () =
     release lock;
     match res with 
     | InjR size -> size 
-    | _ -> prerr_string "Not Possible"; raise NotPossible
+    | _ -> prerr_string "Not Possible"; exit 2
 
 let prepare lock broadcast addSet removeSet valuePair =
     acquire lock; 
