@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-EXE="~/repositories/aneris/crdts/_build/default/ml_sources/rcb/crdt/counter/counter_runner.exe"
+EXE="~/crdts/_build/default/ml_sources/rcb/crdt/counter/counter_runner.exe"
 
 RUN () {
    osascript -e 'tell app "Terminal" to do script "'"${EXE//\"/\\\"} ${1//\"/\\\"}  ${2//\"/\\\"}  ${3//\"/\\\"}  ${4//\"/\\\"} "'"'
