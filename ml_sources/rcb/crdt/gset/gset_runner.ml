@@ -29,7 +29,7 @@ let handle_io i elems size prepare =
 let init_exec () = 
     if Array.length Sys.argv < 4 then (
         prerr_endline "Usage: <index> <port1 port2 ... portN \n
-    to read the counter type 'read', to increment/decrement type 'inc <int>' or 'dec<int>' respectively.>";
+    to read the elements of the set type 'elems', to add something to the set type 'add <value>'. To read the size of the set, write size";
         exit 2);
       let ip = string_of_inet_addr (gethostbyname "localhost").h_addr_list.(0) in
       let l =

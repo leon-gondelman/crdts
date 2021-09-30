@@ -44,7 +44,7 @@ let size lock set () =
 
 let prepare lock broadcast set value =
     acquire lock; 
-    let message = broadcast value in
+    let message = broadcast (fst value) in
     set := effect message !set;
     release lock
 
@@ -54,7 +54,7 @@ let apply_thread lock set deliver =
       begin
         match (deliver ()) with
           Some message ->
-            set := effect message !set;
+            set := effect (fst message) !set;
             (* Thread.delay 0.5; *)
         | None -> ()
       end;
