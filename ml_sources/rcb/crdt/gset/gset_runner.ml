@@ -12,9 +12,8 @@ let handle_io i elems size prepare =
     let readString = read_line () in 
     match String.split_on_char ' ' readString with 
     | [ "add"; value ] -> (
-        let toUpdate = int_of_string value in 
         let () = prepare value in 
-        Printf.printf "Node[%d] Added: %d\n" i toUpdate
+        Printf.printf "Node[%d] Added: %s\n" i value
     )
     | [ "elems" ] -> (
         Printf.printf "Node[%d] Set elements: " i;
