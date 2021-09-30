@@ -14,9 +14,9 @@ type set = string aset
 
 
 (* Using List serialisation since sets are implemented as lists in aneris *)
-let op_ser = (list_ser string_ser)
+let op_ser = string_ser
 
-let op_deser = (list_deser string_deser)
+let op_deser = string_deser
 
 let eval query (set:string aset) = if query == "elems" then (InjL set) else (InjR (set_cardinal set))
 
@@ -65,7 +65,7 @@ let set_init addrs rid =
     let pair = rcb_init op_ser op_deser addrs rid in 
     let deliver = fst pair in
     let broadcast = snd pair in
-    let set: (string aset) ref = ref (None) in
+    let set = ref (set_empty ()) in
     let lock = newlock () in 
     fork (apply_thread lock set) deliver;
     (elems lock set, (size lock set, prepare lock broadcast set))
