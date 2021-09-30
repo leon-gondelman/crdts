@@ -18,7 +18,7 @@ let op_ser = string_ser
 
 let op_deser = string_deser
 
-let eval query (set:string aset) = if query == "elems" then (InjL set) else (InjR (set_cardinal set))
+let eval query (set:string aset) = if query = "elems" then (InjL set) else (InjR (set_cardinal set))
 
 let effect message set = 
     let toAdd = (fst (fst message)) in 
