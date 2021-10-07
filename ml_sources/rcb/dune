@@ -1,4 +1,11 @@
 (library
  (name rcb_code)
  (flags :standard -rectypes)
+ (modules Rcb_code)
  (libraries aneris))
+(library
+ (name rcb_minimal_code)
+  (flags :standard -rectypes)
+  (modules Rcb_minimal_code)
+ (libraries aneris)
+)

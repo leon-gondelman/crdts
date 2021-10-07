@@ -1,5 +1,5 @@
 open Ast
-open Rcb_code
+open Rcb_minimal_code
 open Serialization_code
 
 type counter = int
