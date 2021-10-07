@@ -1,4 +1,4 @@
 (executable
   (name counter_runner)
   (flags :standard -rectypes)
-  (libraries rcb_code aneris))
+  (libraries rcb_minimal_code rcb_code aneris))
