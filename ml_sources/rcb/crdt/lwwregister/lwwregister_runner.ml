@@ -22,7 +22,7 @@ let handle_io i read prepare =
 let init_exec () = 
     if Array.length Sys.argv < 4 then (
         Printf.printf "Usage: <index> <port1 port2 ... portN \n
-    to read the register read, to write something to the register type 'write <value>'.";
+    to read the register read, to write something to the register type 'write <value>'.\n";
         exit 2);
       let ip = string_of_inet_addr (gethostbyname "localhost").h_addr_list.(0) in
       let l =
