@@ -44,6 +44,17 @@ let rec list_iter handler l =
      list_iter handler tail
   | None -> ()
 
+let list_iteri handler l =
+  let rec loop i l' =
+    match l' with
+      Some a ->
+        let tail = snd a in
+        handler i (fst a);
+        loop (i + 1) tail
+    | None -> ()
+  in
+  loop 0 l
+
 (* Non tail-recusive, like its OCaml counterpart:
    https://ocaml.org/api/List.html *)
 let list_mapi f l =
@@ -52,7 +63,7 @@ let list_mapi f l =
       Some a -> list_cons (f i (fst a)) (loop (i + 1) (snd a))
     | None -> None
   in
-  loop 0 l 
+  loop 0 l
 
 (* Non tail-recursive *)
 let rec list_map f l =
@@ -162,3 +173,33 @@ let rec list_update l i v =
       if i = 0 then list_cons v (list_tail l)
       else list_cons (fst a) (list_update (snd a) (i - 1) v)
     | None -> list_nil
+
+(* TODO: move to the lib *)
+(* Pre: 0 ≤ i < len *)
+(* Post: returns l[i .. |l|[ *)
+let rec list_suf i (l : 'a alist) : 'a alist =
+  if i = 0 then l
+  else match l with
+    | None   -> None
+    | Some p -> list_suf (i - 1) (snd p)
+
+(* TODO: move to the lib *)
+(* Pre: 0 ≤ i < |l| ∧ 0 <= i + ofs <= |l| *)
+(* Post: returns  l[i..i+ofs[ *)
+let list_inf_ofs i ofs l =
+  if ofs <= 0 then list_nil else list_sub ofs (list_suf i l)
+
+(* Pre: 0 ≤ i <= j < |l| *)
+(* Post: returns l[i..j] *)
+let list_inf i j l = list_inf_ofs i (j - i + 1) l
+
+(* returns l[0..i-1], l[i..|l|] *)
+let rec list_split i l =
+  if i <= 0 then (list_nil, l)
+  else
+    match l with
+      None -> (list_nil, list_nil)
+    | Some p ->
+      let (x, tl) = p in
+      let ps = list_split (i - 1) tl in
+      (list_cons x (fst ps), snd ps)

@@ -35,3 +35,8 @@ let queue_take_opt q =
   match (fst q') with
     Some p -> Some (fst p, (snd p, snd q'))
   | None -> None
+
+let queue_filter pred q =
+  let (head, rev) = q in
+  let all = list_append head (list_rev rev) in
+  (list_filter pred all, None)

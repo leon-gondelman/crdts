@@ -13,14 +13,28 @@ let seqnum_ser = int_ser
 
 let seqnum_deser = int_deser
 
-let ack_msg_ser = prod_ser seqnum_ser rep_id_ser
+(* An ack has the format ((orig_id, seqnum), sender_id)
+   `orig_id` is the replica id of the node that originally created the operation.
+   `sender_id` is the replicae id of the node that sent the message with the ack.
+   The two can be different because of re-transmissions.
+*)
+let ack_msg_ser = prod_ser (prod_ser rep_id_ser seqnum_ser)
+                            rep_id_ser
 
-let ack_msg_deser = prod_deser seqnum_deser rep_id_deser
+let ack_msg_deser = prod_deser (prod_deser rep_id_deser seqnum_deser)
+                                rep_id_deser
 
+(* A broadcast message has the format (((payload, vc), orig_id), sender_id).
+   See the comment above about the distinction between `orig_id` and `sender_id`.
+*)
 let broadcast_msg_ser (val_ser[@metavar]) =
-  prod_ser (prod_ser val_ser vect_serialize) rep_id_ser
+  prod_ser (prod_ser (prod_ser val_ser vect_serialize)
+                      rep_id_ser)
+            rep_id_ser
 let broadcast_msg_deser (val_deser[@metavar]) =
-    prod_deser (prod_deser val_deser vect_deserialize) rep_id_deser
+    prod_deser (prod_deser (prod_deser val_deser vect_deserialize)
+                            rep_id_deser)
+                rep_id_deser
 
 let msg_ser (val_ser[@metavar]) =
   sum_ser ack_msg_ser (broadcast_msg_ser val_ser)
@@ -32,96 +46,92 @@ let rec loop_forever thunk =
   thunk ();
   loop_forever thunk
 
-(* Pops the top of the queue while the predicate holds of it. *)
-let rec take_while pred q =
-  match (queue_peek_opt q) with
-    Some e ->
-      if (pred e) then
-        let p = unSOME (queue_take_opt q) in
-        take_while pred (snd p)
-      else
-        q
-  | None -> q
-
-let max n m = if (n < m) then m else n
-
-let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues acks =
-  (* Dispatch messages in the out queue for node j.
-     Returns the new queue. *)
-  let send j q =
-    if j = i then
-      begin
-        (* We don't send to ourselves, so the out-queue must be empty *)
-        assert (queue_is_empty q);
-        q
-      end
-    else
-      let curr_ack = vect_nth !acks j in
-      let q' = take_while (fun p ->
-        let vc = snd p in
-        let sn = vect_nth vc i in
-        sn <= curr_ack) q
-      in begin
-        match (queue_peek_opt q') with
-          Some p ->
-            let vc = (snd p) in
-            let sn = vect_nth vc i in
-            assert (sn = curr_ack + 1);
-            (* Message with seqnum curr_ack was acked, so now we can send seqnum curr_ack + 1.
-              This could be the first time we're sending curr_ack + 1, or we could be
-              retransmitting it because it hasn't been acked.
-              Don't remove the message from the queue, since we might
-              need to retransmit in the future.  *)
-            let msg = InjR (p, i) in
-            let dest = unSOME (list_nth nodes j) in
-            ignore(sendTo socket_handler (msg_ser val_ser msg) dest)
-        | None -> ()
-      end;
-      q'
+let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues =
+  (* Send the first message in out-queue `q` to its destination *)
+  let send_head j q =
+    (* We don't send to ourselves, so the out-queue must be empty *)
+    if (j = i) then assert (queue_is_empty q);
+    match (queue_peek_opt q) with
+      Some msg ->
+        (* This could be the first time we're sending this message, or we could be
+          retransmitting it because it hasn't been acked.
+          Don't remove the message from the queue, since we might
+          need to retransmit in the future.  *)
+          let dest = unSOME (list_nth nodes j) in
+          ignore(sendTo socket_handler (msg_ser val_ser (InjR msg)) dest)
+      | None -> ()
   in
   loop_forever (fun () ->
     acquire lock;
-    outQueues := list_mapi send !outQueues;
-    release lock)
-    (* Thread.delay 0.5) *)
+    list_iteri send_head !outQueues;
+    release lock;
+    (* Thread.delay 1.0 *)
+    )
 
-let send_ack socket_handler sn rid dest_addr =
-  let ack = InjL (sn, rid) in
+let send_ack socket_handler origId sn senderId dest_addr =
+  let ack = InjL ((origId, sn), senderId) in
   (* Since we're serializing an InjL, we can pass in a dummy 'val_ser'
      of 'unit_ser' *)
   let ack_raw = msg_ser unit_ser ack in
   ignore(sendTo socket_handler ack_raw dest_addr)
 
-let recv_thread (val_deser[@metavar]) i socket_handler lock addrlst inQueue acks my_vc seen =
+let prune_ack origId sn q =
+  match (queue_peek_opt q) with
+    Some e ->
+      let (((_p, vc), origMsg), _s) = e in
+      let snMsg = vect_nth vc origId in
+      if (origMsg = origId && snMsg = sn) then
+        let x = unSOME (queue_take_opt q) in
+        let (_e, rest) = x in
+        rest
+      else
+        q
+  | None -> q
+
+let prune_bcst bcOrig bcSn queue =
+  queue_filter (fun m ->
+    let (((_p, vc), origId), _s) = m in
+    let msgSn = vect_nth vc origId in
+    origId = bcOrig && msgSn <= bcSn)
+    queue
+
+let recv_thread (val_deser[@metavar]) i socket_handler lock addrlst inQueue outQueues seen =
   let receive msg =
     match msg with
-    | InjL p -> (* an ack: (sn, rid) *)
-        let sn = fst p in
-        let rid = snd p in
-        let curr_ack = vect_nth !acks rid in
-        acks := vect_update !acks rid (max curr_ack sn)
-    | InjR p ->
-      let payload = fst (fst p) in
-      let vc = snd (fst p) in
-      let rid = snd p in
-      (* A broadcast message *)
-      let their_sn = vect_nth vc rid in
-      let their_addr = unSOME (list_nth addrlst rid) in
-      let recorded_sn = vect_nth !my_vc rid in
-      if (their_sn = recorded_sn + 1) then
-        begin
-          (* This is the next message we expect to receive from them.
-             Only add it to the in-queue if we haven't seen it before. *)
-           let is_present = unSOME (list_nth !seen rid) in
-           if (not is_present) then
-             (seen := list_update !seen rid true;
-             inQueue := list_cons ((payload, vc), rid) !inQueue)
-        end;
-      if (their_sn <= recorded_sn + 1) then
-        (* Ack the message even if it's old: our previous ack
-           might have gotten lost. *)
-        send_ack socket_handler their_sn i their_addr
-      else ()
+    | InjL ackMsg -> 
+      let ((origId, sn), senderId) = ackMsg in
+      let senderQ = unSOME (list_nth !outQueues senderId) in
+      let senderQ' = prune_ack origId sn senderQ in
+      outQueues := list_update !outQueues senderId senderQ'
+    | InjR bcstMsg ->
+      let (((payload, vc), origId), senderId) = bcstMsg in
+      let origSn = vect_nth vc origId in
+      let senderAddr = unSOME (list_nth addrlst senderId) in
+      (* acknowledge immediately *)
+      send_ack socket_handler origId origSn i senderAddr;
+      (* To determine whether to put this message in the in-queue,
+         check that its seqnum is higher than the highest seqnum 
+         of the originator ever placed in the in-queue. *)
+      let seenSn = vect_nth !seen origId in
+      if (seenSn < origSn) then
+        seen := vect_update !seen origId origSn;
+        (* In stop-and-wait, origSn can be higher by at most one, because
+           otherwise whoever sent origSn would've sent origSn - 1 first.
+           *)
+        assert (origSn = seenSn + 1);
+        inQueue := list_cons bcstMsg !inQueue;
+        (* Use the broadcast's timestamp to prune the sender's out-queue. *)
+        let senderQ = unSOME (list_nth !outQueues senderId) in
+        let senderQ' = prune_bcst origId origSn senderQ in
+        outQueues := list_update !outQueues senderId senderQ';
+        (* Now re-transmit the broadcast to all nodes other than the sender
+           and the originator (and ourselves). *)
+        outQueues := list_mapi (fun j q ->
+            if (j <> i && j <> senderId && j <> origId) then
+              (* Replace the sender id by our id, since we're the ones
+                 sending the message this time. *)
+              queue_add (((payload, vc), origId), i) q
+            else q) !outQueues
   in
   loop_forever (fun () ->
     let msg_raw = fst (unSOME (receiveFrom socket_handler)) in
@@ -133,42 +143,44 @@ let recv_thread (val_deser[@metavar]) i socket_handler lock addrlst inQueue acks
 let is_causally_next vc my_rid =
   let l = list_length vc in
   fun ev ->
-    let ev_vc = snd (fst ev) in
-    let origin = snd ev in
-    if my_rid = origin then
+    let (((_payload, ev_vc), orig), _sender) = ev in
+    if my_rid = orig then
       false
-    else if origin < l then
-      vect_applicable ev_vc vc origin
+    else if orig < l then
+      vect_applicable ev_vc vc orig
     else
       false
 
-let deliver vc lock inQueue seen rid () =
+let deliver vc lock inQueue rid () =
   acquire lock;
   let remRes = list_find_remove (is_causally_next !vc rid) !inQueue in
-  let res =
+  let res = 
     match remRes with
     | Some p ->
-      let msg = fst p in
-      let origin = snd msg in
-      let rest = snd p in
+      let (elem, rest) = p in
+      let (((payload, msgVc), orig), _sender) = elem in
       inQueue := rest;
-      seen := list_update !seen origin false;
-      vc := vect_inc !vc origin;
-      Some msg
+      vc := vect_inc !vc orig;
+      Some ((payload, msgVc), orig)
     | None -> None
   in
   release lock;
   res
 
-let broadcast vc outQueues lock rid payload =
+let broadcast vc seen outQueues lock rid payload =
   acquire lock;
   vc := vect_inc !vc rid;
-  let msg = (payload, !vc) in
+  let msg = ((payload, !vc), rid) in
+  let sn = vect_nth !vc rid in
+  let seenSn = vect_nth !vc rid in
+  assert (sn = seenSn + 1);
+  seen := vect_update !seen rid sn;
   outQueues := list_mapi (fun j q ->
-    if (j <> rid) then queue_add msg q
+    (* rid added twice since orig = sender *)
+    if (j <> rid) then queue_add (msg, rid) q
     else q) !outQueues;
   release lock;
-  (msg, rid)
+  msg
 
 (* Initializes RCB with a list of addresses [addrlst], where the current
    node sends and receives at address [i].
@@ -177,14 +189,13 @@ let broadcast vc outQueues lock rid payload =
 let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i =
   let n = list_length addrlst in
   let vc = ref (vect_make n 0) in
-  let acks = ref (vect_make n 0) in
-  let seen = ref (list_make n false) in
+  let seen = ref (vect_make n 0) in
   let inQueue = ref list_nil in
   let outQueues = ref (list_make n (queue_empty ())) in
   let lock = newlock () in
   let socket_handler = socket PF_INET SOCK_DGRAM IPPROTO_UDP in
   let addr = unSOME (list_nth addrlst i) in
   socketBind socket_handler addr;
-  fork (send_thread val_ser i socket_handler lock addrlst outQueues) acks;
-  fork (recv_thread val_deser i socket_handler lock addrlst inQueue acks vc) seen;
-  (deliver vc lock inQueue seen i, broadcast vc outQueues lock i)
+  fork (send_thread val_ser i socket_handler lock addrlst) outQueues;
+  fork (recv_thread val_deser i socket_handler lock addrlst inQueue outQueues) seen;
+  (deliver vc lock inQueue i, broadcast vc seen outQueues lock i)
