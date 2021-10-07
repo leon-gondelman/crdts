@@ -18,9 +18,10 @@ let handle_io i read prepare =
       Printf.printf "Node[%d] cleared register" i
     )
     | [ "get" ] -> (
-        Printf.printf "Node[%d] Got : %s" i (read () );
-        Printf.printf "\n"
-    )
+      Printf.printf "Node[%d] Read: " i;
+      set_iter (Printf.printf "%s,") (read ());
+      Printf.printf "\n"
+  )
     | _ -> ()
 
 let init_exec () = 
