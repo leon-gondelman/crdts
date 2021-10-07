@@ -18,7 +18,7 @@ let op_deser = string_deser
 let eval (register:registerVal) () = register
 
 let effect message (register:registerVal) our_ts our_id = 
-    let ((newRegVal, their_vc), orig) = (fst (fst message)) in 
+    let ((newRegVal, their_vc), orig) = message in 
     let their_ts = vect_nth their_vc orig in 
     if their_ts > our_ts then newRegVal else
       if their_ts = our_ts then (if orig <= our_id then newRegVal else register) (* <= is important since the msg may be from ourself* *)
