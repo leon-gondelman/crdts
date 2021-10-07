@@ -1,0 +1,4 @@
+(library
+ (name pure_op_based_framework)
+ (flags :standard -rectypes)
+ (libraries aneris))
