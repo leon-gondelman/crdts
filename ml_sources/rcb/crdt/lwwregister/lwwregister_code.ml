@@ -28,7 +28,7 @@ let prepare lock broadcast (register:registerVal ref) value =
     acquire lock; 
     let message = broadcast value in
     let our_vc = snd (fst message) in
-    let our_id = snd (snd message) in 
+    let our_id = snd message in 
     let our_ts = vect_nth our_vc our_id in 
     register := effect message !register our_ts our_id;
     release lock
