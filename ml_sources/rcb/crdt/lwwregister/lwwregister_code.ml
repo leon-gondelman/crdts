@@ -15,7 +15,7 @@ let op_ser = string_ser
 
 let op_deser = string_deser
 
-let eval (register:registerVal) () = register
+let eval (register:registerVal ref) () = !register
 
 let effect message (register:registerVal) our_ts our_id = 
     let ((newRegVal, their_vc), orig) = message in 
@@ -53,5 +53,5 @@ let register_init addrs rid =
     let register = ref ("") in
     let lock = newlock () in 
     fork (apply_thread lock register 0 rid) deliver;
-    (eval !register, prepare lock broadcast register)
+    (eval register, prepare lock broadcast register)
       
