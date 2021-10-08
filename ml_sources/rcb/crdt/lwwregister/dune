@@ -1,4 +1,4 @@
 (executable
   (name lwwregister_runner)
   (flags :standard -rectypes)
-  (libraries rcb_minimal_code rcb_code aneris))
+  (libraries pure_op_based_framework rcb_minimal_code rcb_code aneris))
