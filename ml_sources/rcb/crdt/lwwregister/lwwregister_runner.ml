@@ -10,8 +10,11 @@ let handle_io i read prepare =
     let readString = read_line () in 
     match String.split_on_char ' ' readString with 
     | [ "write"; value ] -> (
-        let () = prepare value in 
+        let () = prepare "write" value in 
         Printf.printf "Node[%d] wrote: %s\n" i value
+    )
+    | [ "clear" ] -> (
+        prepare "clear" ""
     )
     | [ "get" ] -> (
         Printf.printf "Node[%d] Got : %s" i (read () );
