@@ -4,8 +4,9 @@ open Vector_clock_code
 
 let effectFW rel rel0 rel1 mes stateRef =
   let relMesStateBool = rel mes !stateRef in
-  let newSet = list_filter (fun x -> ((not (rel0 x mes)) && relMesStateBool) || ((not (rel1 x mes)) && (not(relMesStateBool)))) !stateRef in 
-  if not (relMesStateBool) then stateRef := (set_add mes newSet) else stateRef := newSet
+  let newSet = list_filter (fun x -> ((not (rel0 x mes)) && relMesStateBool) 
+  || ((not (rel1 x mes)) && (not(relMesStateBool)))) !stateRef in 
+  if not (relMesStateBool) then stateRef := (set_add mes newSet) else stateRef := newSet  
 
 let rec vcEqual vc1 vc2 = match (vc1, vc2) with
   | (Some a, Some b) -> if ((fst a) = (fst b)) then (vcEqual (snd a) (snd b)) else false
