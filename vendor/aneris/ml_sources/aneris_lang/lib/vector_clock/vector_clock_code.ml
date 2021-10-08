@@ -33,6 +33,16 @@ let rec vect_leq v1 v2 =
        | None -> false)
   | None -> list_is_empty v2
 
+
+let rec vect_le v1 v2 =
+  match v1 with
+    Some a1 ->
+      (match v2 with
+         Some a2 ->
+           (fst a1 < fst a2) && vect_le (snd a1) (snd a2)
+       | None -> false)
+  | None -> list_is_empty v2
+
 let vect_conc v1 v2 =
   (not (vect_leq v1 v2)) && (not (vect_leq v2 v1))
 
