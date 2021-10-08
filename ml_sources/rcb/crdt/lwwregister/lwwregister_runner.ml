@@ -5,7 +5,7 @@ open Serialization_code
 open Set_code
 open List_code
 open Lwwregister_code
-
+(*
 let handle_io i read prepare = 
     let readString = read_line () in 
     match String.split_on_char ' ' readString with 
@@ -41,3 +41,4 @@ let init_exec () =
       loop_forever (fun () -> handle_io i read prepare)
 
 let () = Unix.handle_unix_error init_exec ()
+*)
