@@ -14,13 +14,14 @@ let op_deser = prod_deser string_deser string_deser
 
 let read lock register () = 
   acquire lock;
-  let res = list_map (fun x -> snd (fst x)) !register in
+  let res = list_map (fun x -> snd (fst (fst x))) !register in
   release lock;
   res
   
 let effect message register = 
   let rel = (fun m _ -> fst (fst (fst m)) = "clear") in 
-  let rel01 = (fun m1 m2 -> (vect_leq (snd (fst m1)) (snd (fst m2)))) || (vect_conc (snd (fst m1)) (snd (fst m2)) && snd m1 >= snd m2) in (*Last conjunction uses correct message structure I think. Others need fix. *)
+  let rel01 = (fun m1 m2 -> (vect_leq (snd (fst m1)) (snd (fst m2)))
+  || (vect_conc (snd (fst m1)) (snd (fst m2)) && snd m1 >= snd m2)) in
   (* let stabilize = (fun x -> x) in *)
   effectFW rel rel01 rel01 message register
     
