@@ -20,7 +20,7 @@ let read lock register () =
   
 let effect message register = 
   let rel = (fun m _ -> fst (fst m) = "clear") in 
-  let rel01 = (fun m1 m2 -> vect_le (snd m1) (snd m2)) in 
+  let rel01 = (fun m1 m2 -> vect_leq (snd m1) (snd m2)) in 
   (* let stabilize = (fun x -> x) in *)
   effectFW rel rel01 rel01 (fst message) register
     
