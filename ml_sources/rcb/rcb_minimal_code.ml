@@ -82,7 +82,7 @@ let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues acks =
   loop_forever (fun () ->
     acquire lock;
     outQueues := list_mapi send !outQueues;
-    release lock)
+    release lock;
     Thread.delay 5.0)
 
 let send_ack socket_handler sn rid dest_addr =

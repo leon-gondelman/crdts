@@ -19,7 +19,7 @@ let read lock register () =
   res
   
 let effect message register = 
-  let rel = (fun m _ -> fst (fst (fst m)) = "clear") in 
+  let rel = (fun m s -> let m2 = fst s in (fst (fst (fst m)) = "clear") || (vect_conc (snd (fst m)) (snd (fst m2)) && snd m >= snd m2)) in 
   let rel01 = (fun m1 m2 -> (vect_leq (snd (fst m1)) (snd (fst m2)))
   || (vect_conc (snd (fst m1)) (snd (fst m2)) && snd m1 >= snd m2)) in
   (* let stabilize = (fun x -> x) in *)
