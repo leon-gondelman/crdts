@@ -5,7 +5,7 @@ open List_code
 open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
-(* 
+
 (* Note messages are of the form: (((operation, value), vector clock), origin), register will contain (((operation, value), vector clock), origin)  *)
 
 let op_ser = prod_ser string_ser string_ser 
@@ -19,8 +19,12 @@ let read lock register () =
   res
   
 let effect message register = 
-  let rel = (fun m s -> let m2 = fst s in (fst (fst (fst m)) = "clear") 
-  || ((vect_conc (snd (fst m)) (snd (fst m2))) && (snd m >= snd m2))) in 
+  let rel = (fun m1 s -> match (list_head s) with 
+    | Some m2 -> (fst (fst (fst m1)) = "clear") 
+      || ((vect_conc (snd (fst m1)) (snd (fst m2))) && (snd m1 >= snd m2))
+    | None -> false 
+  )   
+  in 
   let rel01 = (fun m1 m2 -> (vect_leq (snd (fst m1)) (snd (fst m2)))
   || (vect_conc (snd (fst m1)) (snd (fst m2)) && snd m1 >= snd m2)) in
   (* let stabilize = (fun x -> x) in *)
@@ -51,4 +55,4 @@ let register_init addrs rid =
     let lock = newlock () in 
     fork (apply_thread lock register) deliver;
     (read lock register, prepare lock broadcast register)
-*)      
+    
