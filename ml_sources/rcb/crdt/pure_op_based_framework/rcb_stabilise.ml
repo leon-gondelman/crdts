@@ -14,10 +14,11 @@ let rec vcEqual vc1 vc2 = match (vc1, vc2) with
   | (Some a, Some b) -> if ((fst a) = (fst b)) then (vcEqual (snd a) (snd b)) else false
   | (_, _) -> true
 
-let stable stabilize vcLen stateRef ts =
+let stable stabilize vcLen stateRef stableMessage =
   let vcBottom = (vect_make vcLen (-1)) in
-  let newSet = stabilize ts stateRef in
-  stateRef := list_map (fun x -> if (vcEqual ts x) then vcBottom else x) newSet
+  let newSet = stabilize stableMessage stateRef in
+  stateRef := list_map (fun message -> if (vcEqual (snd (fst stableMessage)) (snd (fst message))) 
+    then (((fst (fst (fst message)), snd (fst (fst message))), vcBottom), snd message) else message) newSet
 
 let stabilizing_deliver deliver local_map set stabilize_function vcLen = match (deliver ()) with
     | Some message -> 
