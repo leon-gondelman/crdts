@@ -21,7 +21,8 @@ let stable stabilize vcLen stateRef ts =
 let stabilizing_deliver deliver local_map set stabilize_function vcLen = match (deliver ()) with
     | Some message -> 
       (
-      let vcRef = (list_nth !local_map (snd message)) in   
+      let vcRefOptional = (list_nth !local_map (snd message)) in   
+      let vcRef = match vcRefOptional with | Some a -> a | None -> exit 1 in
       vcRef := (snd (fst message));
       let stablePred = (fun message -> vect_nth (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
       let stableSet = list_filter (fun x -> stablePred x) !set in
