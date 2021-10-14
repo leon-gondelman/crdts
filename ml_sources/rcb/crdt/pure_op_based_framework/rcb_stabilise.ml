@@ -10,13 +10,15 @@ let low_function local_map src =
   !res 
 
 let stabilizing_deliver deliver local_map set stabilize_function vcLen = match (deliver ()) with
-    | Some message -> (
+    | Some message -> 
+      (
       let vcRef = (list_nth !local_map (snd message)) in   
-      vcRef := (snd(fst message));
+      vcRef := (snd (fst message));
       let stablePred = (fun x -> vect_nth (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
-      let stableSet = list_filter (fun x -> stablePred x) !set; 
+      let stableSet = list_filter (fun x -> stablePred x) !set in
       list_iter (stable stabilize_function vcLen set) stableSet;
-      (Some message)) 
+      (Some message)
+      ) 
     | None -> None
 
 let rec vcEqual vc1 vc2 = match (vc1, vc2) with
