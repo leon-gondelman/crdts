@@ -1,5 +1,5 @@
 open Ast
-open Rcb_minimal_code
+open Rcb_stabilise
 open Serialization_code
 open List_code
 open Set_code
@@ -21,7 +21,6 @@ let read lock set () =
 let effect message set = 
   let rel = (fun m _ -> fst (fst (fst m)) = "clear" || fst (fst (fst m)) = "rmv") in 
   let rel01 = (fun m1 m2 -> (vect_leq (snd (fst m1)) (snd (fst m2))) && ((fst (fst (fst m2)) = "clear") || (snd (fst (fst m1)) = snd (fst (fst m2))))) in 
-  (* let stabilize = (fun x -> x) in *)
   effectFW rel rel01 rel01 (message) set
     
 let prepare lock broadcast set value =
@@ -42,10 +41,10 @@ let apply_thread lock set deliver =
       release lock;)
 
 let set_init addrs rid = 
-    let pair = rcb_init op_ser op_deser addrs rid in 
+    let set = ref (set_empty ()) in
+    let pair = rcb_init op_ser op_deser addrs rid set (fun message set -> set) in 
     let deliver = fst pair in
     let broadcast = snd pair in
-    let set = ref (set_empty ()) in
     let lock = newlock () in 
     fork (apply_thread lock set) deliver;
     (read lock set, prepare lock broadcast set)

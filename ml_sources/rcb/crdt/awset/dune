@@ -1,4 +1,4 @@
 (executable
   (name awset_runner)
   (flags :standard -rectypes)
-  (libraries rcb_minimal_code rcb_code aneris pure_op_based_framework))
+  (libraries rcb_stabilise rcb_minimal_code rcb_code aneris pure_op_based_framework))
