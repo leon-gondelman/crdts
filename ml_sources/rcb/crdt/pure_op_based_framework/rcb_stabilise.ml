@@ -8,15 +8,6 @@ let low_function local_map src =
     let current_value = vect_nth (!x) src in
     if current_value < !res then res := current_value) !local_map;
   !res 
-let stabilizing_deliver deliver local_map set vcLen stabilize_function = match (deliver ()) with
-    | Some message -> (
-      let vcRef = (list_nth !local_map (snd message)) in   
-      vcRef := (snd(fst message));
-      let stablePred = (fun x -> vect_nth (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
-      let stableSet = list_filter (fun x -> stablePred x) !set; 
-      list_iter (stable stabilize_function vcLen set) stableSet;
-      (Some message)) 
-    | None -> None
 
 let rec vcEqual vc1 vc2 = match (vc1, vc2) with
   | (Some a, Some b) -> if ((fst a) = (fst b)) then (vcEqual (snd a) (snd b)) else false
@@ -26,6 +17,18 @@ let stable stabilize vcLen stateRef ts =
   let vcBottom = (vect_make vcLen (-1)) in
   let newSet = stabilize ts stateRef in
   stateRef := list_map (fun x -> if (vcEqual ts x) then vcBottom else x) newSet
+
+let stabilizing_deliver deliver local_map set stabilize_function vcLen = match (deliver ()) with
+    | Some message -> 
+      (
+      let vcRef = (list_nth !local_map (snd message)) in   
+      vcRef := (snd (fst message));
+      let stablePred = (fun message -> vect_nth (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
+      let stableSet = list_filter (fun x -> stablePred x) !set in
+      list_iter (stable stabilize_function vcLen set) stableSet;
+      (Some message)
+      ) 
+    | None -> None
 
 let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i set stabilize_function =
   let pair = Rcb_code.rcb_init val_ser val_deser addrlst i in
