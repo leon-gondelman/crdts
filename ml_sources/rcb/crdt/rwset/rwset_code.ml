@@ -6,7 +6,7 @@ open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
 
-(* Note messages are of the form: (((operation, value), vector clock), origin), set will only contain ((operation, value), vector clock)  *)
+(* Note messages are of the form: (((operation, value), vector clock), origin), set contain (((operation, value), vector clock), origin)  *)
 
 let op_ser = prod_ser string_ser string_ser 
 
@@ -14,18 +14,18 @@ let op_deser = prod_deser string_deser string_deser
 
 let read lock set () = 
   acquire lock;
-  let rmvSet = list_filter (fun x -> fst (fst x) = "rmv") !set in
-  let rmvSetClean = list_map (fun x -> snd (fst x)) rmvSet in
-  let addSet = list_filter (fun x -> fst (fst x) = "add") !set in
-  let addSetClean = list_map (fun x -> snd (fst x)) addSet in 
+  let rmvSet = list_filter (fun x -> (fst (fst (fst x))) = "rmv") !set in
+  let rmvSetClean = list_map (fun x -> snd (fst (fst x))) rmvSet in
+  let addSet = list_filter (fun x -> (fst (fst (fst x))) = "add") !set in
+  let addSetClean = list_map (fun x -> snd (fst (fst x))) addSet in 
   let res = list_filter (fun x -> not (list_mem x rmvSetClean)) addSetClean in 
   release lock;
   res
   
 let effect message set = 
-  let rel = (fun m _ -> fst (fst m) = "clear") in 
-  let rel01 = (fun m1 m2 -> (vect_leq (snd m1) (snd m2)) && ((fst (fst m2) = "clear") || (snd (fst m1) = snd (fst m2)))) in 
-  effectFW rel rel01 rel01 (fst message) set
+  let rel = (fun m _ -> fst (fst (fst m)) = "clear") in 
+  let rel01 = (fun m1 m2 -> (vect_leq (snd (fst m1)) (snd (fst m2)) && ((fst (fst (fst m2)) = "clear") || (snd (fst (fst m1)) = snd (fst (fst m2)))))) in 
+  effectFW rel rel01 rel01 (message) set
     
 let prepare lock broadcast set value =
     acquire lock; 

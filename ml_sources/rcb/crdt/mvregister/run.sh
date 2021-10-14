@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-EXE="~/Documents/uniProjekter/crdts/_build/default/ml_sources/rcb/crdt/mvregister/mvregister_runner.exe"
+EXE="~/crdts/_build/default/ml_sources/rcb/crdt/mvregister/mvregister_runner.exe"
 
 RUN () {
    osascript -e 'tell application "Terminal" to do script "'"${EXE//\"/\\\"} ${1//\"/\\\"}  ${2//\"/\\\"}  ${3//\"/\\\"}  ${4//\"/\\\"} "'"'

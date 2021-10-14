@@ -6,7 +6,7 @@ open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
 
-(* Note messages are of the form: (((operation, value), vector clock), origin), register will only contain ((operation, value), vector clock)  *)
+(* Note messages are of the form: (((operation, value), vector clock), origin), register contains (((operation, value), vector clock), origin)  *)
 
 let op_ser = prod_ser string_ser string_ser 
 
@@ -14,15 +14,15 @@ let op_deser = prod_deser string_deser string_deser
 
 let read lock register () = 
   acquire lock;
-  let res = list_map (fun x -> snd (fst x)) !register in
+  let res = list_map (fun x -> snd ( fst (fst x))) !register in
   release lock;
   res
   
 let effect message register = 
-  let rel = (fun m _ -> fst (fst m) = "clear") in 
-  let rel01 = (fun m1 m2 -> vect_leq (snd m1) (snd m2)) in 
+  let rel = (fun m _ -> fst (fst (fst m)) = "clear") in 
+  let rel01 = (fun m1 m2 -> vect_leq (snd (fst m1)) (snd (fst m2))) in 
   (* let stabilize = (fun x -> x) in *)
-  effectFW rel rel01 rel01 (fst message) register
+  effectFW rel rel01 rel01 (message) register
     
 let prepare lock broadcast register value =
     acquire lock; 
