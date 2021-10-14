@@ -2,3 +2,9 @@
  (name pure_op_based_framework)
  (flags :standard -rectypes)
  (libraries aneris))
+ (
+  library
+ (name rcb_stabilise)
+ (flags :standard -rectypes)
+ (libraries aneris rcb_code)
+ )
