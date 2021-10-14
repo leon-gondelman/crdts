@@ -20,7 +20,7 @@ let stable stabilize vcLen stateRef stableMessage =
   stateRef := list_map (fun message -> if (vcEqual (snd (fst stableMessage)) (snd (fst message))) 
     then ((fst (fst (fst message)), snd (fst (fst message))), vcBottom), snd message else message) newSet
 
-let stabilizing_deliver deliver local_map set stabilize_function vcLen = match (deliver ()) with
+let stabilizing_deliver deliver local_map set stabilize_function vcLen () = match (deliver ()) with
     | Some message -> 
       (
       let vcRefOptional = (list_nth !local_map (snd message)) in   

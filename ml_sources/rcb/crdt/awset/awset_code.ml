@@ -42,7 +42,7 @@ let apply_thread lock set deliver =
 
 let set_init addrs rid = 
     let set = ref (set_empty ()) in
-    let pair = rcb_init op_ser op_deser addrs rid set (fun message set -> set) in 
+    let pair = rcb_init op_ser op_deser addrs rid set (fun _ set -> set) in 
     let deliver = fst pair in
     let broadcast = snd pair in
     let lock = newlock () in 
