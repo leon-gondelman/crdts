@@ -3,7 +3,8 @@ open List_code
 open Vector_clock_code
 
 let low_function local_map src = 
-  let res = ref (vect_nth (list_nth !local_map 0) src) in
+  let vc = match list_nth !local_map 0 with | Some a -> !a | None -> exit 1 in
+  let res = ref (vect_nth vc src) in
   list_iter (fun x -> 
     let current_value = vect_nth (!x) src in
     if current_value < !res then res := current_value) !local_map;
@@ -38,5 +39,3 @@ let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i set stabilize_f
   let n = list_length addrlst in
   let local_map = ref (list_make n (ref (vect_make n 0))) in 
   (stabilizing_deliver deliver local_map set stabilize_function n, broadcast)
-  
- 
