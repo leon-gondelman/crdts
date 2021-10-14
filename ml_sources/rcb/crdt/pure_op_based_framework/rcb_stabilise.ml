@@ -36,6 +36,6 @@ let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i set stabilize_f
   let broadcast = snd pair in
   let n = list_length addrlst in
   let local_map = ref (list_make n (ref (vect_make n 0))) in 
-  (stabilizing_deliver deliver local_map set n stabilize_function, broadcast)
+  (stabilizing_deliver deliver local_map set stabilize_function n, broadcast)
   
  
