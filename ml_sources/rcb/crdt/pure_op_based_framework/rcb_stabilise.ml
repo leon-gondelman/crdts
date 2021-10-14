@@ -1,23 +1,23 @@
 include Rcb_code
-open 
+open List_code
+open Vector_clock_code
 
-let stabilizing_deliver deliver local_map set stabilize_function vcLen = 
-  match (deliver ()) with
-    | Some message ->
+let low_function local_map src = 
+  let res = ref (vect_nth (list_nth !local_map 0) src) in
+  list_iter (fun x -> 
+    let current_value = vect_nth (!x) src in
+    if current_value < !res then res := current_value) !local_map;
+  !res 
+
+let stabilizing_deliver deliver local_map set stabilize_function vcLen = match (deliver ()) with
+    | Some message -> (
       let vcRef = (list_nth !local_map (snd message)) in   
       vcRef := (snd(fst message));
       let stablePred = (fun x -> vect_nth (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
       let stableSet = list_filter (fun x -> stablePred x) !set; 
       list_iter (stable stabilize_function vcLen set) stableSet;
-      message
-    | None -> ()
-
-let low_function local_map src = 
-  let res = ref (vect_nth (!(list_nth local_map 0)) src) in
-  list_iter (fun x -> 
-    let current_value = vect_nth (!x) src in
-    if current_value < !res then res := current_value) local_map;
-    !res 
+      (Some message)) 
+    | None -> None
 
 let rec vcEqual vc1 vc2 = match (vc1, vc2) with
   | (Some a, Some b) -> if ((fst a) = (fst b)) then (vcEqual (snd a) (snd b)) else false
