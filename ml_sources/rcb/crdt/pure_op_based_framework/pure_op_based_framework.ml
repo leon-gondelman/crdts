@@ -44,6 +44,7 @@ let read
   | Some f ->
     acquire lock;
     let payload_set = list_map (fun x -> fst (fst x)) !stateRef in
+    list_iter (fun x -> list_iter (fun y -> Printf.printf "%d" y) (snd (fst x))) !stateRef;
     let res = Some (f payload_set) in
     release lock;
     res
