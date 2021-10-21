@@ -1,6 +1,7 @@
 include Rcb_minimal_code
 open List_code
 open Vector_clock_code
+open Set_code
 
 let low_function local_map src = 
   let vc = match list_nth !local_map 0 with | Some a -> !a | None -> exit 1 in
