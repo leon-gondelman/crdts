@@ -7,16 +7,6 @@ open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
 
-    let read lock set () = 
-      acquire lock;
-      let rmvSet = list_filter (fun x -> (fst (fst (fst x))) = "rmv") !set in
-      let rmvSetClean = list_map (fun x -> snd (fst (fst x))) rmvSet in
-      let addSet = list_filter (fun x -> (fst (fst (fst x))) = "add") !set in
-      let addSetClean = list_map (fun x -> snd (fst (fst x))) addSet in 
-      let res = list_filter (fun x -> not (list_mem x rmvSetClean)) addSetClean in 
-      release lock;
-      res
-
       (*TODO Fill out stable function*)
     let stable = fun _ s -> s
 

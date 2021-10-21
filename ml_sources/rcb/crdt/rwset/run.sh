@@ -2,6 +2,7 @@
 
 
 EXE="~/crdts/_build/default/ml_sources/rcb/crdt/rwset/rwset_runner.exe"
+
 RUN () {
    osascript -e 'tell application "Terminal" to do script "'"${EXE//\"/\\\"} ${1//\"/\\\"}  ${2//\"/\\\"}  ${3//\"/\\\"}  ${4//\"/\\\"} "'"'
 }
