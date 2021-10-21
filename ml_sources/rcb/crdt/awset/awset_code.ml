@@ -5,47 +5,15 @@ open List_code
 open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
+open Map_code
 
-(* Note messages are of the form: (((operation, value), vector clock), origin), set contain (((operation, value), vector clock), origin)  *)
 
-let op_ser = prod_ser string_ser string_ser 
+    let serialiser = {s_ser = prod_ser string_ser string_ser; s_deser = prod_deser string_deser string_deser}
 
-let op_deser = prod_deser string_deser string_deser
-
-let read lock set () = 
-  acquire lock;
-  let res = list_map (fun x -> snd (fst (fst x))) !set in
-  release lock;
-  res
-  
-let effect message set = 
-  let rel = (fun m _ -> fst (fst (fst m)) = "clear" || fst (fst (fst m)) = "rmv") in 
-  let rel01 = (fun m1 m2 -> (vect_leq (snd (fst m1)) (snd (fst m2))) && ((fst (fst (fst m2)) = "clear") || (snd (fst (fst m1)) = snd (fst (fst m2))))) in 
-  effectFW rel rel01 rel01 (message) set
-    
-let prepare lock broadcast set value =
-    acquire lock; 
-    let message = broadcast value in
-    effect message set;
-    release lock
-
-let apply_thread lock set deliver =
-  loop_forever (fun () ->
-      acquire lock;
-      begin
-        match (deliver ()) with
-          Some message ->
-            effect message set;
-        | None -> ()
-      end;
-      release lock;)
-
-let set_init addrs rid = 
-    let set = ref (set_empty ()) in
-    let pair = rcb_init op_ser op_deser addrs rid set (fun _ set -> set) in 
-    let deliver = fst pair in
-    let broadcast = snd pair in
-    let lock = newlock () in 
-    fork (apply_thread lock set) deliver;
-    (read lock set, prepare lock broadcast set)
-      
+    let rel = (fun m _ -> fst (fst (fst m)) = "clear" || fst (fst (fst m)) = "rmv")
+    let rel01 = (fun m1 m2 -> (vect_leq (snd (fst m1)) (snd (fst m2))) && ((fst (fst (fst m2)) = "clear") || (snd (fst (fst m1)) = snd (fst (fst m2)))))
+    let stabilize _ s = s
+    let read = fun set -> list_map (fun x -> snd (x)) set
+    let queries = map_insert "read" read (map_empty ())
+    let set_init addrs rid = 
+      crdt_init addrs rid serialiser ((rel, rel01), rel01) queries stabilize

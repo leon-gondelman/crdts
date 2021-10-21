@@ -23,7 +23,8 @@ let handle_io i read prepare =
     )
     | [ "read" ] -> (
       Printf.printf "Node[%d] Read: " i;
-      set_iter (Printf.printf "%s,") (read ());
+      let q = match read "read" with Some x -> x | _ -> exit 0 in 
+      set_iter (Printf.printf "%s,") q;
       Printf.printf "\n"
   )
     | _ -> ()

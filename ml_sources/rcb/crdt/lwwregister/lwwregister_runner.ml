@@ -4,7 +4,7 @@ open Rcb_minimal_code
 open Serialization_code
 open Set_code
 open List_code
-open Lwwregister_gen_code
+open Lwwregister_code
 
 let handle_io i read prepare = 
     let readString = read_line () in 
