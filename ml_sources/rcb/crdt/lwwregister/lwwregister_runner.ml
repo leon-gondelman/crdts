@@ -4,7 +4,7 @@ open Rcb_code
 open Serialization_code
 open Set_code
 open List_code
-open Lwwregister_code
+open Lwwregister_gen_code
 
 let handle_io i read prepare = 
     let readString = read_line () in 
@@ -19,7 +19,8 @@ let handle_io i read prepare =
     )
     | [ "read" ] -> (
         Printf.printf "Node[%d] Read: " i;
-        set_iter (Printf.printf "%s,") (read ());
+        let q = match read "read" with Some x -> x | _ -> exit 0 in 
+        set_iter (Printf.printf "%s,") q;
         Printf.printf "\n"
     )
     | _ -> ()

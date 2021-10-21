@@ -18,12 +18,14 @@ let rel01 (m1 : 'value msg) (m2 : 'value msg)  =
   (vect_leq (snd (fst m1)) (snd (fst m2)))
   || (vect_conc (snd (fst m1)) (snd (fst m2)) && snd m1 >= snd m2)
 
-let known_queries =
+let known_queries: (string, string aset) known_queries =
   map_insert
     "read"
     (fun pset -> list_map (snd) pset) (map_empty ())
 
 let stabilize _m s = s
 
-let register_init addrs rid (serializer : 'value payload serializer) =
+let serializer = {s_ser = prod_ser string_ser string_ser; s_deser = prod_deser string_deser string_deser}
+
+let register_init addrs rid =
   crdt_init addrs rid serializer ((rel, rel01), rel01) known_queries stabilize

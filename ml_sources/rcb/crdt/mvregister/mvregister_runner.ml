@@ -19,6 +19,7 @@ let handle_io i query prepare =
     )
     | [ "read" ] -> (
       Printf.printf "Node[%d] Read: " i;
+      flush_all ();
       let q = match query("read") with Some x -> x | _ -> exit 0 in 
       set_iter (Printf.printf "%s,") q;
       Printf.printf "\n"
