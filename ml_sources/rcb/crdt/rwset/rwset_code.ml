@@ -7,6 +7,7 @@ open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
 
+
     let read lock set () = 
       acquire lock;
       let rmvSet = list_filter (fun x -> (fst (fst (fst x))) = "rmv") !set in

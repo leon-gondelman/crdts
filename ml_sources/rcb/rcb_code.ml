@@ -137,8 +137,7 @@ let recv_thread (val_deser[@metavar]) i socket_handler lock addrlst inQueue outQ
     let msg = msg_deser val_deser msg_raw in
     acquire lock;
     receive msg;
-    release lock;
-    Thread.delay 5.0)
+    release lock;)
 
 let is_causally_next vc my_rid =
   let l = list_length vc in

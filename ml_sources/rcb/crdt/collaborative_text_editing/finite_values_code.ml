@@ -21,27 +21,16 @@ let rel (m1 : 'value msg) (s : 'value msg aset) =
     match list_head set with
     | Some m2 ->
       (vect_conc (getVC m2) (getVC m1) && getOr m2 < getOr m1)
-      || concurrentAndLoss (list_tail s)
+      || concurrentAndLoss (list_tail set)
     | None -> false 
   in
-  getOp m1 = "Delete" || concurrentAndLoss s
+  getOp m1 = "delete" || concurrentAndLoss s
 
-let rel0 (m1 : 'value msg) (m2 : 'value msg) =  
-  vect_conc (getVC m1) (getVC m2) && getOr m2 < getOr m1
-
+let rel0 (m1 : 'value msg) (m2 : 'value msg) = 
+  getOp m2 = "delete" && (getPos m1) = (getPos m2) && vect_leq (getVC m1) (getVC m2)
+  
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
-  getOp m1 = "Delete" && getPos m1 = getPos m2 && vect_leq (getVC m2) (getVC m1)
-
-(* 
-  let rec inner f l_ref m = match !l_ref with
-  | x::y::t -> 
-    if (f m x) then m::x::y::t
-    else if (f m y) then x::m::y::t
-    else x::y::(inner f (ref t) m)    
-  | x::[ ] -> if (f m x) then m::x::[ ] else x::m::[ ]
-  | [ ] -> [ m ]
-  in
-*)
+  vect_conc (getVC m1) (getVC m2) && getOr m2 < getOr m1
 
 let place_in_list f l_ref m = 
   let rec inner f l_ref m = match list_head (l_ref) with
@@ -64,11 +53,11 @@ let list_sort f l =
 let known_queries =
   map_insert
     "read"
-    (fun pset -> list_iter (fun m -> Printf.printf "(%s,%s)" (fst (snd m)) (snd (snd m))) (list_sort (fun m1 m2 -> (fst (snd m1) < fst (snd m2))) pset)) 
+    (fun pset -> list_iter (fun m -> Printf.printf "(%s,%s)" (fst (snd m)) (snd (snd m))) 
+      (list_sort (fun m1 m2 -> (float_of_string (fst (snd m1)) < float_of_string (fst (snd m2)))) pset)) 
     (map_empty ())
 
-let stabilize m s = 
-  list_filter (fun x -> not (vect_conc (getVC x) (getVC m) && getOr m < getOr x)) s
+let stabilize _m s = s
 
 let serializer = {s_ser = prod_ser string_ser (prod_ser string_ser string_ser); 
                   s_deser = prod_deser string_deser (prod_deser string_deser string_deser)}
