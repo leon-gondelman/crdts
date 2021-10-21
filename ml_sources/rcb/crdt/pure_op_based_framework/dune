@@ -7,6 +7,6 @@
   library
  (name rcb_stabilise)
  (flags :standard -rectypes)
- (libraries aneris rcb_code)
+ (libraries aneris rcb_code rcb_minimal_code)
  (modules Rcb_stabilise)
  )

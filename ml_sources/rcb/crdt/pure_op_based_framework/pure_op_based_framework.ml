@@ -18,7 +18,7 @@ let effectFW rel rel0 rel1 mes stateRef =
   if not (relMesStateBool) then stateRef := (set_add mes newSet) else stateRef := newSet
 
 
-let apply_thread lock stateRef deliver effect =
+let apply_thread lock stateRef deliver effect () =
   loop_forever (fun () ->
       acquire lock;
       begin
@@ -66,5 +66,5 @@ let crdt_init
   let (deliver, broadcast) = pair in
   let lock = newlock () in
   let effect = effectFW rel rel0 rel1 in
-  fork (apply_thread lock stateRef deliver effect) deliver;
+  fork (apply_thread lock stateRef deliver effect) ();
   (read lock stateRef known_queries, prepare lock broadcast stateRef effect)

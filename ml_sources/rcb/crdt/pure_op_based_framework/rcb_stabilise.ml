@@ -1,4 +1,4 @@
-include Rcb_code
+include Rcb_minimal_code
 open List_code
 open Vector_clock_code
 
@@ -34,7 +34,7 @@ let stabilizing_deliver deliver local_map set stabilize_function vcLen () = matc
     | None -> None
 
 let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i set stabilize_function =
-  let pair = Rcb_code.rcb_init val_ser val_deser addrlst i in
+  let pair = Rcb_minimal_code.rcb_init val_ser val_deser addrlst i in
   let deliver = fst pair in
   let broadcast = snd pair in
   let n = list_length addrlst in

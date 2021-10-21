@@ -2,6 +2,7 @@ open Ast
 open List_code
 open Queue_code
 open Network_util_code
+open Set_code
 open Vector_clock_code
 open Serialization_code
 
@@ -83,6 +84,7 @@ let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues acks =
     acquire lock;
     outQueues := list_mapi send !outQueues;
     release lock;
+    Thread.delay 5.0
     )
 
 let send_ack socket_handler sn rid dest_addr =

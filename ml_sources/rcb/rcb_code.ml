@@ -65,7 +65,6 @@ let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues =
     acquire lock;
     list_iteri send_head !outQueues;
     release lock;
-    (* Thread.delay 1.0 *)
     )
 
 let send_ack socket_handler origId sn senderId dest_addr =
@@ -138,7 +137,8 @@ let recv_thread (val_deser[@metavar]) i socket_handler lock addrlst inQueue outQ
     let msg = msg_deser val_deser msg_raw in
     acquire lock;
     receive msg;
-    release lock)
+    release lock;
+    Thread.delay 5.0)
 
 let is_causally_next vc my_rid =
   let l = list_length vc in
