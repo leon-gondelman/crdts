@@ -15,23 +15,24 @@ let getPos (m : 'value msg) = fst (snd (fst (fst m)))
 let getVal (m : 'value msg) = snd (snd (fst (fst m)))
 let getVC (m : 'value msg) = snd (fst m)
 let getOr (m : 'value msg) = snd m 
+
 let rel (m1 : 'value msg) (s : 'value msg aset) =
-  let concurrentAndLoss set = 
+  let rec concurrentAndLoss set = 
     match list_head set with
     | Some m2 ->
       (vect_conc (getVC m2) (getVC m1) && getOr m2 < getOr m1)
       || concurrentAndLoss (list_tail s)
     | None -> false 
   in
-  getOp m1 = "Delete" || concurrentAndLossTest s
+  getOp m1 = "Delete" || concurrentAndLoss s
 
 let rel0 (m1 : 'value msg) (m2 : 'value msg) =  
   vect_conc (getVC m1) (getVC m2) && getOr m2 < getOr m1
 
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
-  getOp m1 = "Delete" && getPos m1 = getPos m2 && vect_leq (getVC m2 m1)
+  getOp m1 = "Delete" && getPos m1 = getPos m2 && vect_leq (getVC m2) (getVC m1)
 
-let rec place_in_list f l_ref m = 
+(* 
   let rec inner f l_ref m = match !l_ref with
   | x::y::t -> 
     if (f m x) then m::x::y::t
@@ -40,20 +41,37 @@ let rec place_in_list f l_ref m =
   | x::[ ] -> if (f m x) then m::x::[ ] else x::m::[ ]
   | [ ] -> [ m ]
   in
-  l_ref := inner f l_ref m 
+*)
+
+let place_in_list f l_ref m = 
+  let rec inner f l_ref m = match list_head (l_ref) with
+    | Some x -> ( match list_head (list_tail (l_ref)) with
+                | Some y -> if (f m x) then Some (m, list_cons x (list_tail (l_ref)))
+                            else if (f m y) then Some (x, list_cons y (list_tail (l_ref)))
+                            else Some (x, list_cons y (inner f (list_tail (list_tail (l_ref))) m))
+                | None -> 
+                          if (f m x) then Some (m, list_cons x None) 
+                          else Some (x, list_cons m None) 
+                )              
+    | None -> Some (m, None)                
+  in                        
+  l_ref := inner f !l_ref m 
 
 let list_sort f l =
   let res = ref list_nil in
-  lister_iter (place_in_list f res) l;
+  list_iter (place_in_list f res) l;
   !res
 let known_queries =
   map_insert
     "read"
-    (fun pset -> list_map (getVal) (list_sort (fun m1 m2 -> (getPos m1 < getPos m2)) pset)) 
+    (fun pset -> list_iter (fun m -> Printf.printf "(%s,%s)" (fst (snd m)) (snd (snd m))) (list_sort (fun m1 m2 -> (fst (snd m1) < fst (snd m2))) pset)) 
     (map_empty ())
 
 let stabilize m s = 
   list_filter (fun x -> not (vect_conc (getVC x) (getVC m) && getOr m < getOr x)) s
 
-let register_init addrs rid (serializer : 'value payload serializer) =
-  crdt_init addrs rid serializer ((rel, rel01), rel01) known_queries stabilize
+let serializer = {s_ser = prod_ser string_ser (prod_ser string_ser string_ser); 
+                  s_deser = prod_deser string_deser (prod_deser string_deser string_deser)}
+
+let editor_init addrs rid =
+  crdt_init addrs rid serializer ((rel, rel0), rel1) known_queries stabilize

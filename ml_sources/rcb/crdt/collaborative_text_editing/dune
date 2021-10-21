@@ -1,0 +1,4 @@
+(executable
+  (name finite_values_runner)
+  (flags :standard -rectypes)
+  (libraries rcb_stabilise pure_op_based_framework rcb_minimal_code rcb_code aneris))
