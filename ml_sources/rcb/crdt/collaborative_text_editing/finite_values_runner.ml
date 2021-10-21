@@ -19,7 +19,7 @@ let handle_io i query prepare =
     )
     | [ "read" ] -> (
         Printf.printf "Node[%d] Read: " i;
-        query "read";
+        match query "read" with Some x -> x | _ -> ();
         Printf.printf "\n"
     )
     | _ -> ()
