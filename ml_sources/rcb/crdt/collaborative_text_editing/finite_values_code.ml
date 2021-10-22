@@ -32,72 +32,29 @@ let rel0 (m1 : 'value msg) (m2 : 'value msg) =
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
   vect_conc (getVC m1) (getVC m2) && getOr m2 < getOr m1
 
-let place_in_list comparator inputList_ref toInsert = 
-  let rec inner comparator inputList_ref toInsert = match list_head (inputList_ref) with
-    | Some lValue -> ( match list_head (list_tail (inputList_ref)) with
-                | Some rValue -> if (comparator toInsert lValue) then Some (toInsert, list_cons lValue (list_tail (inputList_ref)))
-                            else if (comparator toInsert rValue) then Some (lValue, list_cons toInsert (list_tail (inputList_ref)))
-                            else Some (lValue, list_cons rValue (inner comparator (list_tail (list_tail (inputList_ref))) toInsert))
+let place_in_list f l_ref m = 
+  let rec inner f l m = match list_head (l) with
+    | Some x -> ( match list_head (list_tail (l)) with
+                | Some y -> if (f m x) then Some (m, list_cons x (list_tail (l)))
+                            else if (f m y) then Some (x, list_cons m (list_tail (l)))
+                            else Some (x, list_cons y (inner f (list_tail (list_tail (l))) m))
                 | None -> 
-                          if (comparator toInsert lValue) then Some (toInsert, list_cons lValue None) 
-                          else Some (lValue, list_cons toInsert None) 
+                          if (f m x) then Some (m, list_cons x None) 
+                          else Some (x, list_cons m None) 
                 )              
-    | None -> Some (toInsert, None)                
+    | None -> Some (m, None)                
   in                        
-  inputList_ref := inner comparator !inputList_ref toInsert 
+  l_ref := inner f !l_ref m 
 
-let list_sort comparator inputList =
+let list_sort f l =
   let res = ref list_nil in
-  list_iter (place_in_list comparator res) inputList;
+  list_iter (place_in_list f res) l;
   !res
-
-let rec findMinInList inputList minSoFar = 
-  let minSoFarVal = float_of_string (fst (snd minSoFar)) in
-  match list_head inputList with 
-  | Some lValueMessage -> 
-    (
-      let lValue = float_of_string (fst (snd lValueMessage)) in 
-      match list_head (list_tail inputList) with
-      | Some rValueMessage -> 
-        (
-          let rValue = float_of_string (fst (snd rValueMessage)) in 
-          if lValue < minSoFarVal then findMinInList (list_tail inputList) lValueMessage
-          else if rValue < minSoFarVal then findMinInList (list_tail inputList) rValueMessage
-          else findMinInList (list_tail inputList) minSoFar
-        )
-      | None -> 
-        (
-          if lValue < minSoFarVal then findMinInList (list_tail inputList) lValueMessage
-          else findMinInList (list_tail inputList) minSoFar
-        )
-      )
-  | None -> 
-    (
-      minSoFar
-    )
-  
-
-
-let list_sort2 (inputList: ((string * (string * string) * vector_clock * int) alist)) = 
-  let result = ref list_nil in 
-  let length = list_length inputList in 
-  let i = ref 0 in 
-  let lastInsert = ref ((("", ("0", "")), vect_make 1 0), ("", 0)) in
-  while (!i < length) do 
-    let insert = findMinInList inputList !lastInsert in 
-    result := list_cons (insert) inputList; 
-    i := !i+1;
-    lastInsert := insert
-  done;
-  !result
-
-
 let known_queries =
   map_insert
     "read"
     (fun pset -> list_iter (fun m -> Printf.printf "(%s,%s)" (fst (snd m)) (snd (snd m))) 
-      (*(list_sort (fun m1 m2 -> (float_of_string (fst (snd m1)) < float_of_string (fst (snd m2)))) pset)) *)
-      (list_sort2 pset))
+      (list_sort (fun m1 m2 -> (float_of_string (fst (snd m1)) < float_of_string (fst (snd m2)))) pset)) 
     (map_empty ())
 
 let stabilize _m s = s
