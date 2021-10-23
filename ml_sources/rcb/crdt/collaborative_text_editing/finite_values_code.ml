@@ -6,6 +6,8 @@ open Map_code
 open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
+open Network_util_code
+
 
 (* Note messages are of the form: (((operation, (position, value)), vector clock), origin), 
   the set contains whole messages *)
@@ -15,6 +17,9 @@ let getPos (m : 'value msg) = fst (snd (fst (fst m)))
 let getVal (m : 'value msg) = snd (snd (fst (fst m)))
 let getVC (m : 'value msg) = snd (fst m)
 let getOr (m : 'value msg) = snd m 
+let getPosFromPayload p = fst (snd p) 
+let comparator m1 m2 = float_of_string (getPosFromPayload m1) < float_of_string (getPosFromPayload m2)
+let comparator' m1 m2 = float_of_string (getPos m1) < float_of_string (getPos m2)
 
 let rel (m1 : 'value msg) (s : 'value msg aset) =
   let rec concurrentAndLoss set = 
@@ -46,32 +51,51 @@ let place_in_list f l_ref m =
   in                        
   l_ref := inner f !l_ref m 
 
-let computeIndex msg list = 
-  let length = list_length list in 
-  let position = ref (int_of_string (fst (snd msg))) in 
-  if !position > length then (Printf.printf "Position greater than length, placing at end\n"; position := length);
-  let rightIndex = (if !position = length then None else list_nth list !position) in 
-  let leftIndex = (if !position = 0 then None else list_nth list (!position-1)) in 
-  let leftIndexSome = match leftIndex with Some x -> float_of_string (fst (snd (fst x))) | None -> 0.0 in 
-  let rightIndexSome = match rightIndex with Some x -> float_of_string (fst (snd (fst x))) | None -> 1.0 in 
-  let index: float = Float.div (Float.add rightIndexSome leftIndexSome) 2.0 in  (*Are you absolutely bunkers, OCaml? I can't just use + and / with floats?!*)
-Printf.printf "Index is %f\n" index;
-  string_of_float index
-
-  
-
-
-
-
 let list_sort f l =
   let res = ref list_nil in
   list_iter (place_in_list f res) l;
   !res
+
+let compute_position state index = 
+  let listLength = list_length state in
+  if listLength = 0 then "0.5"  
+  else (
+    let indexInt = int_deser index in
+    let sortedState = list_sort comparator' state in  
+    let elementPre = list_nth sortedState (indexInt-1) in
+    let elementSuc = list_nth sortedState indexInt in
+    (* elementSucPos and elementPrePos computations have to wait, 
+    since we need to make sure we don't get assertion fails with unSOME *)
+    if indexInt = 0 then (
+      let elementSucPos =  float_of_string (getPos (unSOME elementSuc)) in 
+      string_of_float (Float.div elementSucPos  2.0)
+    )
+    else if indexInt = list_length sortedState then  
+      let elementPrePos = float_of_string (getPos (unSOME elementPre)) in
+      string_of_float (Float.div (Float.add elementPrePos 1.0) 2.0)
+    else (
+      let elementPrePos = float_of_string (getPos (unSOME elementPre)) in
+      let elementSucPos =  float_of_string (getPos (unSOME elementSuc)) in 
+      string_of_float (Float.div (Float.add elementPrePos elementSucPos) 2.0)  
+    )  
+  )  
+
+let get_position state index = 
+  let indexInt = int_deser index in 
+  let sortedState = list_sort comparator' state in
+  getPos (unSOME (list_nth sortedState indexInt))
+  
+let is_valid_index state index = 
+  let indexInt = int_deser index in
+  if list_length state = 0 && indexInt = 0 then true
+  else if (indexInt < 0) || (indexInt > (list_length state)) then false
+  else true  
+  
 let known_queries =
   map_insert
     "read"
     (fun pset -> list_iter (fun m -> Printf.printf "(%s,%s)" (fst (snd m)) (snd (snd m))) 
-      (list_sort (fun m1 m2 -> (float_of_string (fst (snd m1)) < float_of_string (fst (snd m2)))) pset)) 
+      (list_sort comparator pset)) 
     (map_empty ())
 
 let stabilize _m s = s
@@ -79,5 +103,5 @@ let stabilize _m s = s
 let serializer = {s_ser = prod_ser string_ser (prod_ser string_ser string_ser); 
                   s_deser = prod_deser string_deser (prod_deser string_deser string_deser)}
 
-let editor_init addrs rid =
+let editor_init addrs rid =  
   crdt_init addrs rid serializer ((rel, rel0), rel1) known_queries stabilize

@@ -50,6 +50,7 @@ let read
     res
   | None -> None
 
+
 let crdt_init
     (addrs : saddr alist)
     (rid : int)
@@ -68,4 +69,4 @@ let crdt_init
   let lock = newlock () in
   let effect = effectFW rel rel0 rel1 in
   fork (apply_thread lock stateRef deliver effect) ();
-  (read lock stateRef known_queries, prepare lock broadcast stateRef effect)
+  ((stateRef, lock), (read lock stateRef known_queries, prepare lock broadcast stateRef effect))

@@ -28,4 +28,4 @@ let stabilize _m s = s
 let serializer = {s_ser = prod_ser string_ser string_ser; s_deser = prod_deser string_deser string_deser}
 
 let register_init addrs rid =
-  crdt_init addrs rid serializer ((rel, rel01), rel01) known_queries stabilize
+  snd (crdt_init addrs rid serializer ((rel, rel01), rel01) known_queries stabilize)

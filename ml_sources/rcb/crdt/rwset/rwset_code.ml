@@ -24,4 +24,4 @@ open Pure_op_based_framework
     let serialiser = {s_ser = prod_ser string_ser string_ser; s_deser = prod_deser string_deser string_deser}
 
     let set_init addrs rid = 
-      crdt_init addrs rid serialiser ((rel, rel01), rel01) queries stable
+      snd (crdt_init addrs rid serialiser ((rel, rel01), rel01) queries stable)

@@ -6,22 +6,34 @@ open Set_code
 open List_code
 open Finite_values_code
 
-let handle_io i query prepare = 
+let handle_io i query prepare stateRef stateLock = 
     let readString = read_line () in 
     match String.split_on_char ' ' readString with 
-    | [ "write"; position; value] -> (
-        if (0.0 <= float_of_string position && float_of_string position <= 1.0 ) then (
-          Printf.printf "Node[%d] wrote: %s at position %s\n" i value position;
-          prepare ("write", (position, value));
-        ) else (
-          Printf.printf "Position must be between 0 and 1\n";
-        ); 
-       flush_all ();
-    )
-    | [ "delete"; position] -> (
-        Printf.printf "Node[%d] deleted charcater at position %s\n" i position;
-        prepare ("delete", (position, ""));
+    | [ "write"; index; value] -> (
+       acquire stateLock; 
+       if (is_valid_index !stateRef index) then (
+        release stateLock; 
+        prepare ("write", (compute_position !stateRef index, value));
+        Printf.printf "Node[%d] wrote: %s at index %s\n" i value index;
         flush_all ();
+       ) else (
+        release stateLock; 
+        Printf.printf "Invalid index\n";
+        flush_all ();
+       )
+    )
+    | [ "delete"; index] -> (
+      acquire stateLock; 
+      if (is_valid_index !stateRef index) then (
+        release stateLock;
+        prepare ("delete", (get_position !stateRef index, "")); 
+        Printf.printf "Node[%d] deleted charcater at index %s\n" i index;
+        flush_all ();
+       ) else (
+        release stateLock;  
+        Printf.printf "Invalid index\n";
+        flush_all ();
+       )
     )
     | [ "read" ] -> (
         Printf.printf "Node[%d] Read: \n" i;
@@ -43,16 +55,18 @@ let init_exec () =
         list_init (Array.length Sys.argv - 2) sa
       in
       let i = int_of_string Sys.argv.(1) in
-      let pair = editor_init l i in 
-      let query = fst pair in 
-      let prepare = snd pair in
+      let utilities = editor_init l i in 
+      let query = fst (snd utilities) in 
+      let prepare = snd (snd utilities) in
+      let stateRef = fst (fst utilities) in
+      let stateLock = snd (fst utilities ) in
 
       Printf.printf "----------- Welcome To The Finite Collaborative Text Editor  -----------\n";
       Printf.printf " - 'read' to read the text\n"; 
-      Printf.printf " - 'write x y' to write 'y' at position 'x'\n";
-      Printf.printf " - positions must be in the interval [0;1]\n"; 
+      Printf.printf " - 'write x y' to write 'y' at index 'x'\n";
+      Printf.printf " - 'delete x' to delete the character at index x\n"; 
       Printf.printf "-------------------------------------------------------------------------\n\n";
 
-      loop_forever (fun () -> handle_io i query prepare)
+      loop_forever (fun () -> handle_io i query prepare stateRef stateLock)
 
 let () = Unix.handle_unix_error init_exec ()

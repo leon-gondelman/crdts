@@ -16,4 +16,4 @@ open Map_code
     let read = fun set -> list_map (fun x -> snd (x)) set
     let queries = map_insert "read" read (map_empty ())
     let set_init addrs rid = 
-      crdt_init addrs rid serialiser ((rel, rel01), rel01) queries stabilize
+      snd (crdt_init addrs rid serialiser ((rel, rel01), rel01) queries stabilize)
