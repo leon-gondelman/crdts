@@ -46,6 +46,25 @@ let place_in_list f l_ref m =
   in                        
   l_ref := inner f !l_ref m 
 
+let computeIndex msg list = 
+  let length = list_length list in 
+  let position = ref (int_of_string (fst (snd msg))) in 
+  if !position > length then (Printf.printf "Position greater than length, placing at end\n"; position := length);
+  let rightIndex = (if !position = length then (Some 1) else list_nth list !position) in 
+  let leftIndex = (if !position = 0 then (Some 0) else list_nth list (!position-1)) in 
+  let leftIndexSome = match leftIndex with Some x -> x | None -> exit 90 in 
+  let rightIndexSome = match rightIndex with Some x -> x | None -> exit 91 in 
+  let leftAsFloat: float = float_of_int leftIndexSome in 
+  let rightAsFloat: float = float_of_int rightIndexSome in 
+  let index: float = Float.div (Float.add rightAsFloat leftAsFloat) 2.0 in  (*Are you absolutely bunkers, OCaml? I can't just use + and / with floats?!*)
+  Printf.printf "Index is %f\n" index;
+  string_of_float index
+
+  
+
+
+
+
 let list_sort f l =
   let res = ref list_nil in
   list_iter (place_in_list f res) l;
