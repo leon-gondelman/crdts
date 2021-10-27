@@ -1,6 +1,15 @@
 # crdts
 OCaml implementations of Conflict-Free Replicated Datatypes for Fun and Profit. (Distributed System Project Course)
 
+###Table of Contents
+=================
+
+* [0\. Welcome](#0-welcome)
+* [1\. Structure of the repo](#1-structure-of-the-repo)
+* [2\. Setting up a new example\.](#2-setting-up-a-new-example)
+* [3\. Compilation and testing\.](#3-compilation-and-testing)
+* [4\. Translation to AnerisLang (Coq) using o2a compiler\. (Optional)](#4-translation-to-anerislang-coq-using-o2a-compiler-optional)
+
 # 0. Welcome
 Welcome to the repository. Here you will find several CRDTs implemented using a Pure Operation Based framework implementation inspired by the paper [Pure Operation-Based Replicated Data Types](https://arxiv.org/abs/1710.04469) by Carlos Baquero, Paulo Sérgio Almeida and Ali Shoker.
 It builds on aneris-lang with the goal of turning the OCaml sources into Coq for formal provability. To implement the CRDTs a framework was created in accordance with the aforementioned paper that the CRDTs in turn use. Many of the implemented CRDTs come from the paper, but there are also CRDT implementations that are inspired by other sources.
