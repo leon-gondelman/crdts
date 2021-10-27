@@ -1,7 +1,7 @@
 # crdts
 OCaml implementations of Conflict-Free Replicated Datatypes for Fun and Profit. (Distributed System Project Course)
 
-###Table of Contents
+### Table of Contents
 =================
 
 * [0\. Welcome](#0-welcome)
