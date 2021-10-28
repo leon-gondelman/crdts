@@ -9,7 +9,7 @@ open Serialization_code
 
 type 'value payload = (string * 'value)
 type ('a, 'b) known_queries = (string, 'a payload aset -> 'b) amap
-type 'value msg = ((('value payload) * vector_clock) * int)
+type 'value msg = ((('value payload) * vector_clock option) * int)
 
 let effectFW rel rel0 rel1 mes stateRef =
   let relMesStateBool = rel mes !stateRef in
