@@ -6,27 +6,13 @@ open Map_code
 open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
+open Rcb_stabilise
 
 (* Note messages are of the form: ((operation, value), vector clock), origin) . *)
 
 let getOP m = fst (fst (fst m))
 let getVal m = snd (fst (fst m))
 let getVC m = snd (fst m)
-
-(* TODO: can we move this to VC code? *)
-let rec vect_eq v1 v2 =
-  match v1 with
-    Some a1 ->
-      (match v2 with
-         Some a2 ->
-           (fst a1 = fst a2) && vect_eq (snd a1) (snd a2)
-       | None -> false)
-  | None -> list_is_empty v2
-
-let vect_bottom v =
-  match v with
-  | Some _ -> false
-  | None -> true
 
 (* TODO: can we move this to list code *)  
 let list_mem_test t l = 
