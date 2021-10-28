@@ -31,7 +31,7 @@ let stable m s =
                                         getOP m' = "rmv" && 
                                         getVal m' = getVal m &&
                                         getOP m = "add" ) s in  
-  if rmvBasedOnAddCheck || rmvBasedOnRmvCheck then  list_filter (fun m' -> vect_eq (getVC m') (getVC m)) filteredStateBasedOnBottomCheck
+  if rmvBasedOnAddCheck || rmvBasedOnRmvCheck then  list_filter (fun m' -> vect_eq_opt (getVC m') (getVC m)) filteredStateBasedOnBottomCheck
   else filteredStateBasedOnBottomCheck                                       
   
 let read messages = 
@@ -44,7 +44,7 @@ let read messages =
 let queries = map_insert "read" read (map_empty ())
 
 let rel = (fun m _ -> fst (fst (fst m)) = "clear")
-let rel01 = (fun m1 m2 -> (vect_leq (snd (fst m1)) (snd (fst m2)) && ((fst (fst (fst m2)) = "clear") || (snd (fst (fst m1)) = snd (fst (fst m2))))))  
+let rel01 = (fun m1 m2 -> (vect_leq_opt (snd (fst m1)) (snd (fst m2)) && ((fst (fst (fst m2)) = "clear") || (snd (fst (fst m1)) = snd (fst (fst m2))))))  
 let serialiser = {s_ser = prod_ser string_ser string_ser; s_deser = prod_deser string_deser string_deser}
 
 let set_init addrs rid = 

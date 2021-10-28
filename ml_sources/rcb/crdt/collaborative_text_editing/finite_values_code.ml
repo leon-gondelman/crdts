@@ -32,7 +32,7 @@ let rel (m1 : 'value msg) (s : 'value msg aset) =
   getOp m1 = "delete" || concurrentAndLoss s
 
 let rel0 (m1 : 'value msg) (m2 : 'value msg) = 
-  getOp m2 = "delete" && (getPos m1) = (getPos m2) && vect_leq (getVC m1) (getVC m2)
+  getOp m2 = "delete" && (getPos m1) = (getPos m2) && vect_leq_opt (getVC m1) (getVC m2)
   
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
   vect_conc_opt (getVC m1) (getVC m2) && getOr m2 < getOr m1
