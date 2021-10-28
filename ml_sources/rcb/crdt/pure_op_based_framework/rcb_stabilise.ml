@@ -17,18 +17,19 @@ let vect_bottom_test v =
   | Some _ -> false
   | None -> true
 let vect_conc_opt v1 v2 =
-  match v1 v2 with 
+  match v1, v2 with 
   | None, None -> assert false (* User of the CRDT should prevent this case *)
   | Some a, Some b -> vect_conc a b   
   | _, _ -> false 
 let vect_leq_opt v1 v2 =   
-  match v1 v2 with 
+  match v1, v2 with 
   | None, None -> assert false (* User of the CRDT should prevent this case *)
   | Some a, Some b -> vect_leq a b   
   | Some _, None -> false 
   | None, Some _ -> true 
-let vect_eq_opt v1 v2 =
-  match v1 v2 with 
+
+let vect_eq_opt (v1 : vector_clock option) (v2 : vector_clock option) =
+  match v1, v2 with 
   | None, None -> assert false (* User of the CRDT should prevent this case *)
   | Some a, Some b -> vect_eq a b   
   | _, _ -> false 
@@ -46,7 +47,11 @@ let low_function local_map src =
     if current_value < !res then res := current_value) !local_map;
   !res 
 
-let stable stabilize stateRef stableMessage =
+  type 'value payload = (string * 'value)
+
+  type 'value msg = ((('value payload) * vector_clock option) * int)
+
+let stable stabilize stateRef (stableMessage : 'value msg) =
   let newSet = stabilize stableMessage !stateRef in
   stateRef := list_map (fun message -> 
     if (vect_eq_opt (snd (fst stableMessage)) (snd (fst message))) then (
@@ -55,10 +60,6 @@ let stable stabilize stateRef stableMessage =
     ) else (
       message
     )) newSet
-
-type 'value payload = (string * 'value)
-
-type 'value msg = ((('value payload) * vector_clock option) * int)
     
 let stabilizing_deliver deliver local_map (set : (('value msg) alist) ref) stabilize_function () = match (deliver ()) with
     | Some message -> 
