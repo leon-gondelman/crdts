@@ -21,13 +21,13 @@ let list_mem_test t l =
   | None -> false 
 
 let stable m s = 
-  let testFunc = (fun m' -> getVal m' = getVal m && not (vect_eq (getVC m') (getVC m))) in
+  let testFunc = (fun m' -> getVal m' = getVal m && not (vect_eq_opt (getVC m') (getVC m))) in
   let filteredState = list_filter testFunc s in
   let rmvBasedOnAddCheck = getOP m = "add" && (list_mem_test testFunc s) in
   let rmvBasedOnRmvCheck = getOP m = "rmv" && 
                           ((list_mem_test (fun m' -> getOP m' = "rmv") filteredState) || 
                           not (list_mem_test (fun m' -> getOP m' = "add") filteredState)) in
-  let filteredStateBasedOnBottomCheck = list_filter (fun m' -> vect_bottom (getVC m') && 
+  let filteredStateBasedOnBottomCheck = list_filter (fun m' -> vect_bottom_test (getVC m') && 
                                         getOP m' = "rmv" && 
                                         getVal m' = getVal m &&
                                         getOP m = "add" ) s in  
