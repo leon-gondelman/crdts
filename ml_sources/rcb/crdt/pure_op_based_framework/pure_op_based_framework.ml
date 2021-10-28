@@ -20,7 +20,6 @@ let effectFW rel rel0 rel1 mes stateRef =
 
 let apply_thread lock stateRef deliver effect () =
   loop_forever (fun () ->
-      (*Thread.delay 8.0;*)
       acquire lock;
       begin
         match (deliver ()) with

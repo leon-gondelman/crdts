@@ -20,8 +20,9 @@ let list_mem_test t l =
   | Some _ -> true
   | None -> false 
 
-let stable m s = 
-  let testFunc = (fun m' -> getVal m' = getVal m && not (vect_eq_opt (getVC m') (getVC m))) in
+let stable _m s = 
+  s
+(*   let testFunc = (fun m' -> getVal m' = getVal m && not (vect_eq_opt (getVC m') (getVC m))) in
   let filteredState = list_filter testFunc s in
   let rmvBasedOnAddCheck = getOP m = "add" && (list_mem_test testFunc s) in
   let rmvBasedOnRmvCheck = getOP m = "rmv" && 
@@ -33,7 +34,7 @@ let stable m s =
                                         getOP m = "add" ) s in  
   if rmvBasedOnAddCheck || rmvBasedOnRmvCheck then  list_filter (fun m' -> vect_eq_opt (getVC m') (getVC m)) filteredStateBasedOnBottomCheck
   else filteredStateBasedOnBottomCheck                                       
-  
+ *)  
 let read messages = 
   let rmvSet = list_filter (fun x -> fst x = "rmv") messages in 
   let rmvSetClean = list_map (fun x -> snd x) rmvSet in 

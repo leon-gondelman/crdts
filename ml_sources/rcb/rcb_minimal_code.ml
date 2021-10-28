@@ -66,7 +66,10 @@ let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues acks =
         match (queue_peek_opt q') with
           Some p ->
             let vc = (snd p) in
-            let sn = vect_nth vc i in
+(*             list_iter (Printf.printf "(%d,)") vc;
+            Printf.printf "\n";
+            flush_all ();
+ *)            let sn = vect_nth vc i in
             assert (sn = curr_ack + 1);
             (* Message with seqnum curr_ack was acked, so now we can send seqnum curr_ack + 1.
               This could be the first time we're sending curr_ack + 1, or we could be
@@ -83,7 +86,9 @@ let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues acks =
   loop_forever (fun () ->
     acquire lock;
     outQueues := list_mapi send !outQueues;
-    release lock;)
+    release lock;
+    (* Thread.delay 8.0; *)
+    )
 
 let send_ack socket_handler sn rid dest_addr =
   let ack = InjL (sn, rid) in
@@ -128,7 +133,8 @@ let recv_thread (val_deser[@metavar]) i socket_handler lock addrlst inQueue acks
     let msg = msg_deser val_deser msg_raw in
     acquire lock;
     receive msg;
-    release lock)
+    release lock;
+    )
 
 let is_causally_next vc my_rid =
   let l = list_length vc in
