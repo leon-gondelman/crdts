@@ -18,19 +18,19 @@ let vect_bottom_test v =
   | None -> true
 let vect_conc_opt v1 v2 =
   match v1, v2 with 
-  | None, None -> assert false (* User of the CRDT should prevent this case *)
+  | None, None -> false
   | Some a, Some b -> vect_conc a b   
   | _, _ -> false 
 let vect_leq_opt v1 v2 =   
   match v1, v2 with 
-  | None, None -> assert false (* User of the CRDT should prevent this case *)
+  | None, None -> false
   | Some a, Some b -> vect_leq a b   
   | Some _, None -> false 
   | None, Some _ -> true 
 
 let vect_eq_opt (v1 : vector_clock option) (v2 : vector_clock option) =
   match v1, v2 with 
-  | None, None -> assert false (* User of the CRDT should prevent this case *)
+  | None, None -> false
   | Some a, Some b -> vect_eq a b   
   | _, _ -> false 
 
