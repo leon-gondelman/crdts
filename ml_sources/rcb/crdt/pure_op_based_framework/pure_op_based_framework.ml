@@ -30,9 +30,10 @@ let apply_thread lock stateRef deliver effect () =
       end;
       release lock;)
 
-let prepare lock broadcast stateRef effect payload =
+let prepare lock broadcast stateRef effect transformation payload =
     acquire lock;
-    let message = broadcast payload in
+    let newPayload = transformation !stateRef payload in 
+    let message = broadcast newPayload in
     effect message stateRef;
     release lock
 
@@ -69,4 +70,4 @@ let crdt_init
   let lock = newlock () in
   let effect = effectFW rel rel0 rel1 in
   fork (apply_thread lock stateRef deliver effect) ();
-  ((stateRef, lock), (read lock stateRef known_queries, prepare lock broadcast stateRef effect))
+  ((read lock stateRef known_queries, prepare lock broadcast stateRef effect))

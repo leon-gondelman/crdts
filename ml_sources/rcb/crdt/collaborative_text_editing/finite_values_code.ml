@@ -103,5 +103,20 @@ let stabilize _m s = s
 let serializer = {s_ser = prod_ser string_ser (prod_ser string_ser string_ser); 
                   s_deser = prod_deser string_deser (prod_deser string_deser string_deser)}
 
+
+let transformPayload state payload =
+  let (operation, (index, value)) = payload in 
+  if(fst payload = "write") then 
+    (
+      let newPosition = compute_position  state index in 
+      (operation, (newPosition, value))
+    )
+  else
+    (
+      let newPos = get_position state index in 
+      (operation, (newPos, value))
+    )
+
 let editor_init addrs rid =  
-  crdt_init addrs rid serializer ((rel, rel0), rel1) known_queries stabilize
+  let (query, prepare) = crdt_init addrs rid serializer ((rel, rel0), rel1) known_queries stabilize in 
+  (query, prepare (transformPayload))

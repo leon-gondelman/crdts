@@ -17,5 +17,6 @@ let readFunc register = list_map (fun x -> snd ( fst (fst x))) !register
 let ser = {s_ser = op_ser; s_deser = op_deser}
 let queries: (string, string aset) known_queries = map_insert "read" (fun m -> list_map (fun x -> snd x) m) (map_empty ())
 let register_init addr rid = 
-      snd (crdt_init addr rid ser ((rel, rel01), rel01) queries stabilize)
+    let (queries, prepare) = (crdt_init addr rid ser ((rel, rel01), rel01) queries stabilize) in
+    (queries, prepare (fun _state payload -> payload))
   

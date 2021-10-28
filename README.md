@@ -1,6 +1,22 @@
 # crdts
 OCaml implementations of Conflict-Free Replicated Datatypes for Fun and Profit. (Distributed System Project Course)
 
+## Table of Contents
+============================
+
+* [0\. Welcome](#0-welcome)
+* [1\. Structure of the repo](#1-structure-of-the-repo)
+* [2\. Setting up a new example\.](#2-setting-up-a-new-example)
+* [3\. Compilation and testing\.](#3-compilation-and-testing)
+* [4\. Translation to AnerisLang (Coq) using o2a compiler\. (Optional)](#4-translation-to-anerislang-coq-using-o2a-compiler-optional)
+
+============================
+
+
+# 0. Welcome
+Welcome to the repository. Here you will find several CRDTs implemented using a Pure Operation Based framework implementation inspired by the paper [Pure Operation-Based Replicated Data Types](https://arxiv.org/abs/1710.04469) by Carlos Baquero, Paulo Sérgio Almeida and Ali Shoker.
+It builds on [aneris-lang](https://iris-project.org/pdfs/2020-esop-aneris-final.pdf) with the goal of turning the OCaml sources into Coq for formal provability. To implement the CRDTs a framework was created in accordance with the aforementioned paper that the CRDTs in turn use. Many of the implemented CRDTs come from the paper, but there are also CRDT implementations that are inspired by other sources.
+Noteworthy among these is the collaborative text editing systems that allow several users to insert characters into a shared text system, including editing different parts of the document at once.
 
 # 1. Structure of the repo
 
@@ -9,7 +25,8 @@ The two main folder of the repository are `ml_sources/` and
 
 
 - `ml_sources/`: This folder contains the reliable causal broadcast
-  implementation `rcb/` and CRDT examples `rcb/crdt/...`.
+  implementation `rcb/` and the CRDTs `rcb/crdt/...`.
+  Inside it one also finds the generalised pure_op_based_framework code that the CRDTs build upon `rcb/crdt/pure_op_based_framework`
 
 
  - `.../ml_sources/aneris_lang/`: This folder contains the libraries that are
@@ -37,6 +54,8 @@ Example: `.../ml_sources/rcb/crdt/counter dune exec ./counter_runner.exe 0 1035 
 
 You can also write a script like `.../ml_sources/rcb/crdt/counter/run.sh`
 which will launch all needed terminals automatically.
+The run scripts in the repo right now are adapted to the paths used for testing during development, and are not relative to CWD.
+The run scripts also use AppleScript for Terminal manipulation but the idea of the run script may easily be adapted to relevant platform of choice.
 
 # 4. Translation to AnerisLang (Coq) using o2a compiler. (Optional)
 

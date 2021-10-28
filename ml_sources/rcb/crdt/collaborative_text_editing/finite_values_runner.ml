@@ -6,34 +6,18 @@ open Set_code
 open List_code
 open Finite_values_code
 
-let handle_io i query prepare stateRef stateLock = 
+let handle_io i query prepare = 
     let readString = read_line () in 
     match String.split_on_char ' ' readString with 
     | [ "write"; index; value] -> (
-       acquire stateLock; 
-       if (is_valid_index !stateRef index) then (
-        release stateLock; 
-        prepare ("write", (compute_position !stateRef index, value));
+        prepare ("write", (index, value));
         Printf.printf "Node[%d] wrote: %s at index %s\n" i value index;
         flush_all ();
-       ) else (
-        release stateLock; 
-        Printf.printf "Invalid index\n";
-        flush_all ();
-       )
     )
     | [ "delete"; index] -> (
-      acquire stateLock; 
-      if (is_valid_index !stateRef index) then (
-        release stateLock;
-        prepare ("delete", (get_position !stateRef index, "")); 
+        prepare ("delete", (index, "")); 
         Printf.printf "Node[%d] deleted charcater at index %s\n" i index;
-        flush_all ();
-       ) else (
-        release stateLock;  
-        Printf.printf "Invalid index\n";
-        flush_all ();
-       )
+        flush_all ()
     )
     | [ "read" ] -> (
         Printf.printf "Node[%d] Read: \n" i;
@@ -56,10 +40,8 @@ let init_exec () =
       in
       let i = int_of_string Sys.argv.(1) in
       let utilities = editor_init l i in 
-      let query = fst (snd utilities) in 
-      let prepare = snd (snd utilities) in
-      let stateRef = fst (fst utilities) in
-      let stateLock = snd (fst utilities ) in
+      let query = fst utilities in 
+      let prepare = snd utilities in
 
       Printf.printf "----------- Welcome To The Finite Collaborative Text Editor  -----------\n";
       Printf.printf " - 'read' to read the text\n"; 
@@ -67,6 +49,6 @@ let init_exec () =
       Printf.printf " - 'delete x' to delete the character at index x\n"; 
       Printf.printf "-------------------------------------------------------------------------\n\n";
 
-      loop_forever (fun () -> handle_io i query prepare stateRef stateLock)
+      loop_forever (fun () -> handle_io i query prepare)
 
 let () = Unix.handle_unix_error init_exec ()
