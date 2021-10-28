@@ -74,7 +74,7 @@ let stabilizing_deliver deliver local_map (set : (('value msg) alist) ref) stabi
       ) 
     | None -> None
 
-  let stable_broadcast broadcasat payload = 
+  let stable_broadcast broadcast payload = 
     let ((payload, vc), origin) = broadcast payload in 
     ((payload, Some vc), origin)
   
