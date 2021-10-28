@@ -15,9 +15,8 @@ OCaml implementations of Conflict-Free Replicated Datatypes for Fun and Profit. 
 
 # 0. Welcome
 Welcome to the repository. Here you will find several CRDTs implemented using a Pure Operation Based framework implementation inspired by the paper [Pure Operation-Based Replicated Data Types](https://arxiv.org/abs/1710.04469) by Carlos Baquero, Paulo Sérgio Almeida and Ali Shoker.
-It builds on aneris-lang with the goal of turning the OCaml sources into Coq for formal provability. To implement the CRDTs a framework was created in accordance with the aforementioned paper that the CRDTs in turn use. Many of the implemented CRDTs come from the paper, but there are also CRDT implementations that are inspired by other sources.
+It builds on [aneris-lang](https://iris-project.org/pdfs/2020-esop-aneris-final.pdf) with the goal of turning the OCaml sources into Coq for formal provability. To implement the CRDTs a framework was created in accordance with the aforementioned paper that the CRDTs in turn use. Many of the implemented CRDTs come from the paper, but there are also CRDT implementations that are inspired by other sources.
 Noteworthy among these is the collaborative text editing systems that allow several users to insert characters into a shared text system, including editing different parts of the document at once.
-Some CRDTs in this repository presently do not use the Pure Operation Based Framework and are instead built directly on Reliable Causal Broadcast with no extra layer. This includes dynamo, gset and counter, illustrating how a CRDT may look when not using the framework, and serving as a comparison point against the CRDTs using the framework that are abstracted away from the details of message broadcasting, locks and concurrency handling. 
 
 # 1. Structure of the repo
 
