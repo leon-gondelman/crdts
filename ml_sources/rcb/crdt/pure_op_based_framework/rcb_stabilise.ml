@@ -35,7 +35,7 @@ let vect_eq_opt v1 v2 =
 
 let vect_nth_opt v n =
   match v with 
-  | None -> None
+  | None -> assert false (* User of the CRDT should prevent this case *)
   | Some a -> vect_nth a n
 
 let low_function local_map src = 
@@ -56,7 +56,11 @@ let stable stabilize stateRef stableMessage =
       message
     )) newSet
 
-let stabilizing_deliver deliver local_map set stabilize_function () = match (deliver ()) with
+type 'value payload = (string * 'value)
+
+type 'value msg = ((('value payload) * vector_clock option) * int)
+    
+let stabilizing_deliver deliver local_map (set : (('value msg) alist) ref) stabilize_function () = match (deliver ()) with
     | Some message -> 
       (
       let vcRefOptional = (list_nth !local_map (snd message)) in   
