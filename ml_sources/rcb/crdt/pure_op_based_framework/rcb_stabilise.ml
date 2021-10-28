@@ -74,10 +74,15 @@ let stabilizing_deliver deliver local_map (set : (('value msg) alist) ref) stabi
       ) 
     | None -> None
 
+  let stable_broadcast broadcasat payload = 
+    let ((payload, vc), origin) = broadcast payload in 
+    ((payload, Some vc), origin)
+  
+
 let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i set stabilize_function =
   let pair = Rcb_minimal_code.rcb_init val_ser val_deser addrlst i in
   let deliver = fst pair in
   let broadcast = snd pair in
   let n = list_length addrlst in
   let local_map = ref (list_make n (ref (vect_make n 0))) in 
-  (stabilizing_deliver deliver local_map set stabilize_function, broadcast)
+  (stabilizing_deliver deliver local_map set stabilize_function, stable_broadcast broadcast)
