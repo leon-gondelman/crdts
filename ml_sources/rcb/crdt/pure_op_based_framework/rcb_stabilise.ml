@@ -36,7 +36,7 @@ let vect_eq_opt (v1 : vector_clock option) (v2 : vector_clock option) =
 
 let vect_nth_opt v n =
   match v with 
-  | None -> assert false (* User of the CRDT should prevent this case *)
+  | None -> -1 
   | Some a -> vect_nth a n
 
 let low_function local_map src = 
