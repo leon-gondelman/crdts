@@ -49,4 +49,4 @@ let serialiser = {s_ser = prod_ser string_ser string_ser; s_deser = prod_deser s
 
 let set_init addrs rid = 
   let (queries, prepare) = (crdt_init addrs rid serialiser ((rel, rel01), rel01) queries stable) in 
-  (queries, prepare (fun _state payload -> payload))
+  (queries, prepare (fun _state payload -> Some payload))

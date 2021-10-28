@@ -29,4 +29,4 @@ let serializer = {s_ser = prod_ser string_ser string_ser; s_deser = prod_deser s
 
 let register_init addrs rid =
   let (queries, prepare) = (crdt_init addrs rid serializer ((rel, rel01), rel01) known_queries stabilize) in 
-  (queries, prepare (fun _state payload -> payload))
+  (queries, prepare (fun _state payload -> Some payload))
