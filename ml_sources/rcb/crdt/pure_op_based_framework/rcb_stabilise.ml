@@ -65,7 +65,6 @@ let stabilizing_deliver deliver local_map set stabilize_function () = match (del
       let stablePred = (fun message -> vect_nth_opt (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
       let stableSet = list_filter (fun x -> stablePred x) !set in
       list_iter (stable stabilize_function set) stableSet;
-      if (vect_eq_opt (Some (snd (fst message))) None) then Some ((fst (fst message), None), snd message) else
       Some ((fst (fst message), Some (snd (fst message))), snd message)
       ) 
     | None -> None
