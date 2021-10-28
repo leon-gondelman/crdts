@@ -74,9 +74,9 @@ let stabilizing_deliver deliver local_map (set : (('value msg) alist) ref) stabi
       ) 
     | None -> None
 
-  let stable_broadcast broadcast payload = 
-    let ((payload, vc), origin) = broadcast payload in 
-    ((payload, Some vc), origin)
+let stable_broadcast broadcast payload = 
+  let ((payload, vc), origin) = broadcast payload in 
+  ((payload, Some vc), origin)
   
 
 let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i set stabilize_function =
