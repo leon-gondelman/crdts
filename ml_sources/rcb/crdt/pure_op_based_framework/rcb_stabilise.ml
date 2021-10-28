@@ -41,3 +41,33 @@ let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i set stabilize_f
   let n = list_length addrlst in
   let local_map = ref (list_make n (ref (vect_make n 0))) in 
   (stabilizing_deliver deliver local_map set stabilize_function n, broadcast)
+
+(* TODO: can we move this to VC code? *)
+let rec vect_eq v1 v2 =
+  match v1 with
+    Some a1 ->
+      (match v2 with
+         Some a2 ->
+           (fst a1 = fst a2) && vect_eq (snd a1) (snd a2)
+       | None -> false)
+  | None -> list_is_empty v2
+let vect_bottom_test v =
+  match v with
+  | Some _ -> false
+  | None -> true
+let vect_conc_opt v1 v2 =
+  match v1 v2 with 
+  | None, None -> assert false (* User of the CRDT should prevent this case *)
+  | Some a, Some b -> vect_conc a b   
+  | _, _ -> false 
+let vect_leq_opt v1 v2 =   
+  match v1 v2 with 
+  | None, None -> assert false (* User of the CRDT should prevent this case *)
+  | Some a, Some b -> vect_leq a b   
+  | Some _, None -> false 
+  | None, Some _ -> true 
+let vect_eq_opt v1 v2 =
+  match v1 v2 with 
+  | None, None -> assert false (* User of the CRDT should prevent this case *)
+  | Some a, Some b -> vect_eq a b   
+  | _, _ -> false 
