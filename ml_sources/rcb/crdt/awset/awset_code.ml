@@ -17,4 +17,4 @@ open Map_code
     let queries = map_insert "read" read (map_empty ())
     let set_init addrs rid = 
       let (queries, prep) = (crdt_init addrs rid serialiser ((rel, rel01), rel01) queries stabilize) in 
-      (queries, prep (fun _state payload -> payload))
+      (queries, prep (fun _state payload -> Some payload))
