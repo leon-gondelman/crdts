@@ -48,8 +48,13 @@ let low_function local_map src =
 
 let stable stabilize stateRef stableMessage =
   let newSet = stabilize stableMessage !stateRef in
-  stateRef := list_map (fun message -> if (vect_eq_opt (snd (fst stableMessage)) (snd (fst message))) 
-    then ((fst (fst (fst message)), snd (fst (fst message))), None), snd message else message) newSet
+  stateRef := list_map (fun message -> 
+    if (vect_eq_opt (snd (fst stableMessage)) (snd (fst message))) then (
+      let ((payload, _), origin) = message in
+      ((payload, None), origin)
+    ) else (
+      message
+    )) newSet
 
 let stabilizing_deliver deliver local_map set stabilize_function () = match (deliver ()) with
     | Some message -> 
