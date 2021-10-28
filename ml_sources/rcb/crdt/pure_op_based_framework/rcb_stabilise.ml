@@ -33,6 +33,11 @@ let vect_eq_opt v1 v2 =
   | Some a, Some b -> vect_eq a b   
   | _, _ -> false 
 
+let vect_nth_opt v n =
+  match v with 
+  | None -> None
+  | Some a -> vect_nth a n
+
 let low_function local_map src = 
   let vc = match list_nth !local_map 0 with | Some a -> !a | None -> exit 1 in
   let res = ref (vect_nth vc src) in
@@ -52,7 +57,7 @@ let stabilizing_deliver deliver local_map set stabilize_function () = match (del
       let vcRefOptional = (list_nth !local_map (snd message)) in   
       let vcRef = match vcRefOptional with | Some a -> a | None -> exit 1 in
       vcRef := (snd (fst message));
-      let stablePred = (fun message -> vect_nth (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
+      let stablePred = (fun message -> vect_nth_opt (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
       let stableSet = list_filter (fun x -> stablePred x) !set in
       list_iter (stable stabilize_function set) stableSet;
       if (vect_eq_opt (Some (snd (fst message))) None) then Some ((fst (fst message), None), snd message) else
