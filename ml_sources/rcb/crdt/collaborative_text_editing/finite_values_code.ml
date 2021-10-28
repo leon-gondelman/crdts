@@ -106,15 +106,16 @@ let serializer = {s_ser = prod_ser string_ser (prod_ser string_ser string_ser);
 
 let transformPayload state payload =
   let (operation, (index, value)) = payload in 
+  if(not (is_valid_index state index)) then (None) else 
   if(fst payload = "write") then 
     (
       let newPosition = compute_position  state index in 
-      (operation, (newPosition, value))
+      Some (operation, (newPosition, value))
     )
   else
     (
       let newPos = get_position state index in 
-      (operation, (newPos, value))
+      Some (operation, (newPos, value))
     )
 
 let editor_init addrs rid =  

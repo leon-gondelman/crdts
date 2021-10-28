@@ -1,4 +1,4 @@
-open Ast
+  open Ast
 open List_code
 open Set_code
 open Map_code
@@ -32,9 +32,14 @@ let apply_thread lock stateRef deliver effect () =
 
 let prepare lock broadcast stateRef effect transformation payload =
     acquire lock;
-    let newPayload = transformation !stateRef payload in 
-    let message = broadcast newPayload in
-    effect message stateRef;
+    let newPayloadOpt = transformation !stateRef payload in 
+    (match newPayloadOpt with
+      | None -> () 
+      | Some newPayload -> (
+        let message = broadcast newPayload in
+        effect message stateRef;
+      )
+    );
     release lock
 
 let read
