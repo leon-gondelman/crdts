@@ -30,6 +30,8 @@ let stabilizing_deliver deliver local_map set stabilize_function vcLen () = matc
       let stablePred = (fun message -> vect_nth (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
       let stableSet = list_filter (fun x -> stablePred x) !set in
       list_iter (stable stabilize_function vcLen set) stableSet;
+      let vcBottom = (vect_make vcLen (-1)) in
+      if (vcEqual (snd (fst message))  vcBottom) then Some ((fst (fst message), None), snd message) else
       Some ((fst (fst message), Some (snd (fst message))), snd message)
       ) 
     | None -> None

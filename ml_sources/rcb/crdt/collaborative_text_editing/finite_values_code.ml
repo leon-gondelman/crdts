@@ -25,7 +25,7 @@ let rel (m1 : 'value msg) (s : 'value msg aset) =
   let rec concurrentAndLoss set = 
     match list_head set with
     | Some m2 ->
-      (vect_conc (getVC m2) (getVC m1) && getOr m2 < getOr m1)
+      (vect_conc_opt (getVC m2) (getVC m1) && getOr m2 < getOr m1)
       || concurrentAndLoss (list_tail set)
     | None -> false 
   in
@@ -35,7 +35,7 @@ let rel0 (m1 : 'value msg) (m2 : 'value msg) =
   getOp m2 = "delete" && (getPos m1) = (getPos m2) && vect_leq (getVC m1) (getVC m2)
   
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
-  vect_conc (getVC m1) (getVC m2) && getOr m2 < getOr m1
+  vect_conc_opt (getVC m1) (getVC m2) && getOr m2 < getOr m1
 
 let place_in_list f l_ref m = 
   let rec inner f l m = match list_head (l) with
