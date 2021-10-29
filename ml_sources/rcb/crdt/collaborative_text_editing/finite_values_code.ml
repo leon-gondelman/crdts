@@ -33,24 +33,6 @@ let rel0 (m1 : 'value msg) (m2 : 'value msg) =
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
   vect_conc_opt (getVC m1) (getVC m2) && getOr m2 < getOr m1
 
-let place_in_list f l_ref m = 
-  let rec inner f l m = match list_head (l) with
-    | Some x -> ( match list_head (list_tail (l)) with
-                | Some y -> if (f m x) then Some (m, list_cons x (list_tail (l)))
-                            else if (f m y) then Some (x, list_cons m (list_tail (l)))
-                            else Some (x, list_cons y (inner f (list_tail (list_tail (l))) m))
-                | None -> 
-                          if (f m x) then Some (m, list_cons x None) 
-                          else Some (x, list_cons m None) 
-                )              
-    | None -> Some (m, None)                
-  in                        
-  l_ref := inner f !l_ref m 
-
-let list_sort f l =
-  let res = ref list_nil in
-  list_iter (place_in_list f res) l;
-  !res
 
 let compute_position state index = 
   let listLength = list_length state in

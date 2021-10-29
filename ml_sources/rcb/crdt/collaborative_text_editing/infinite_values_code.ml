@@ -9,8 +9,28 @@ open Pure_op_based_framework
 open Network_util_code
 open Collaborative_editor_shared
 
-let comparator m1 m2 = float_of_string (getPosFromPayload m1) < float_of_string (getPosFromPayload m2)
-let comparator' m1 m2 = float_of_string (getPos m1) < float_of_string (getPos m2)
+(* Note messages are of the form: (((operation, (position alist, value)), vector clock), origin), 
+  the set contains whole messages *)
+
+  let base = 2*10_00000
+
+
+let comparator m1 m2 = 
+  let posList1 = getPosFromPayload m1 in 
+  let posList2 = getPosFromPayload m2 in 
+  let rec comparatorInner list1 list2 = 
+    if list_head list1 = list_head list2 then comparatorInner (list_tail list1) (list_tail list2)
+    else int_of_string (unSOME (list_head list1)) < int_of_string (unSOME (list_head list2))) in 
+  comparatorInner posList1 posList2
+
+let comparator' m1 m2 =  
+  let posList1 = getPos m1 in 
+  let posList2 = getPos m2 in 
+  let rec comparatorInner list1 list2 = 
+    if list_head list1 = list_head list2 then comparatorInner (list_tail list1) (list_tail list2)
+    else int_of_string (unSOME (list_head list1)) < int_of_string (unSOME (list_head list2))) in 
+  comparatorInner posList1 posList2
+
 
 
 
@@ -28,31 +48,12 @@ let rel0 (m1 : 'value msg) (m2 : 'value msg) =
   getOp m2 = "delete" && (getPos m1) = (getPos m2) && vect_leq_opt (getVC m1) (getVC m2)
   
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
-  vect_conc_opt (getVC m1) (getVC m2) && getOr m2 < getOr m1
+  vect_conc_opt (getVC m1) (getVC m2) && getOr m2 < getOr m1  
 
-let place_in_list f l_ref m = 
-  let rec inner f l m = match list_head (l) with
-      | Some x -> ( match list_head (list_tail (l)) with
-                  | Some y -> if (f m x) then Some (m, list_cons x (list_tail (l)))
-                              else if (f m y) then Some (x, list_cons m (list_tail (l)))
-                              else Some (x, list_cons y (inner f (list_tail (list_tail (l))) m))
-                  | None -> 
-                            if (f m x) then Some (m, list_cons x None) 
-                            else Some (x, list_cons m None) 
-                  )              
-      | None -> Some (m, None)                
-    in                        
-    l_ref := inner f !l_ref m 
-  
-
-  let list_sort f l =
-    let res = ref list_nil in
-    list_iter (place_in_list f res) l;
-    !res
   
   let compute_position state index = 
     let listLength = list_length state in
-    if listLength = 0 then "0.5"  
+    if listLength = 0 then base/2
     else (
       let indexInt = int_deser index in
       let sortedState = list_sort comparator' state in  
@@ -79,11 +80,21 @@ let place_in_list f l_ref m =
     let sortedState = list_sort comparator' state in
     getPos (unSOME (list_nth sortedState indexInt))
     
+
+(* Following replaced by the function just below for now. Are they equal?
+  let list_to_string (list: (string alist)) : string = 
+    let start = "[" in 
+    let mid = list_fold (^) start list in 
+    mid ^ "]"
+ *)
+  let list_to_string (list: string alist): string = 
+    (list_ser string_ser list)
+
     
   let known_queries =
     map_insert
       "read"
-      (fun pset -> list_iter (fun m -> Printf.printf "(%s,%s)" (fst (snd m)) (snd (snd m))) 
+      (fun pset -> list_iter (fun m -> Printf.printf "(%s,%s)" (list_to_string (fst (snd m))) (snd (snd m))) 
         (list_sort comparator pset)) 
       (map_empty ())
   
@@ -101,8 +112,8 @@ let place_in_list f l_ref m =
             Some (operation, (newPos, value))
           )
 
-      let serializer = {s_ser = prod_ser string_ser (prod_ser string_ser string_ser); 
-        s_deser = prod_deser string_deser (prod_deser string_deser string_deser)}
+      let serializer = {s_ser = prod_ser string_ser (prod_ser (list_ser string_ser) string_ser); 
+        s_deser = prod_deser string_deser (prod_deser (list_deser string_deser) string_deser)}
 
       
       let editor_init addrs rid =  
