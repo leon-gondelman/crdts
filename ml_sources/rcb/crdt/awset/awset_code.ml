@@ -13,7 +13,11 @@ open Map_code
     let rel = (fun m _ -> fst (fst (fst m)) = "clear" || fst (fst (fst m)) = "rmv")
     let rel01 = (fun m1 m2 -> (vect_leq_opt (snd (fst m1)) (snd (fst m2))) && ((fst (fst (fst m2)) = "clear") || (snd (fst (fst m1)) = snd (fst (fst m2)))))
     let stabilize _ s = s
-    let read = fun set -> list_map (fun x -> snd (x)) set
+    let read set = 
+      let mappet = list_map (fun x -> snd (x)) set in
+      let res = ref (set_empty ()) in
+      list_iter (fun x -> res := set_add x !res) mappet;
+      !res
     let queries = map_insert "read" read (map_empty ())
     let set_init addrs rid = 
       let (queries, prep) = (crdt_init addrs rid serialiser ((rel, rel01), rel01) queries stabilize) in 

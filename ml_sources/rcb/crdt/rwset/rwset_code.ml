@@ -20,27 +20,32 @@ let list_mem_test t l =
   | Some _ -> true
   | None -> false 
 
-let stable _m s = 
-  s
-(*   let testFunc = (fun m' -> getVal m' = getVal m && not (vect_eq_opt (getVC m') (getVC m))) in
-  let filteredState = list_filter testFunc s in
+let stable m s = 
+  let testFunc = (fun m' -> getVal m' = getVal m && not (vect_eq_opt (getVC m') (getVC m))) in
+  let filteredState = list_filter testFunc s in 
   let rmvBasedOnAddCheck = getOP m = "add" && (list_mem_test testFunc s) in
   let rmvBasedOnRmvCheck = getOP m = "rmv" && 
                           ((list_mem_test (fun m' -> getOP m' = "rmv") filteredState) || 
-                          not (list_mem_test (fun m' -> getOP m' = "add") filteredState)) in
-  let filteredStateBasedOnBottomCheck = list_filter (fun m' -> vect_bottom_test (getVC m') && 
-                                        getOP m' = "rmv" && 
-                                        getVal m' = getVal m &&
-                                        getOP m = "add" ) s in  
-  if rmvBasedOnAddCheck || rmvBasedOnRmvCheck then  list_filter (fun m' -> vect_eq_opt (getVC m') (getVC m)) filteredStateBasedOnBottomCheck
-  else filteredStateBasedOnBottomCheck                                       
- *)  
+                          not (list_mem_test (fun m' -> getOP m' = "add") filteredState)) in 
+  let testFunc' v =  (fun m' -> getOP m' = "add" && getVal m' = v && not (vect_eq_opt (getVC m') (getVC m))) in 
+  let filteredStateBasedOnBottomCheck =  list_filter (fun m' -> not ( 
+                                                      vect_bottom_test (getVC m') && 
+                                                      getOP m' = "rmv" && 
+                                                      not (list_mem_test (testFunc' (getVal m')) s) )
+                                                      ) s   
+  in                     
+  if rmvBasedOnAddCheck || rmvBasedOnRmvCheck then list_filter (fun m' -> not (vect_eq_opt (getVC m') (getVC m))) filteredStateBasedOnBottomCheck
+  else filteredStateBasedOnBottomCheck   
+ 
 let read messages = 
   let rmvSet = list_filter (fun x -> fst x = "rmv") messages in 
   let rmvSetClean = list_map (fun x -> snd x) rmvSet in 
   let addSet = list_filter (fun x -> fst x = "add") messages in 
   let addSetClean = list_map (fun x -> snd x) addSet in 
-  list_filter (fun x -> not (list_mem x rmvSetClean)) addSetClean
+  let res = ref (set_empty ()) in
+  list_iter (fun x -> if not (list_mem x rmvSetClean) 
+                      then res := set_add x !res) addSetClean;
+  !res
 
 let queries = map_insert "read" read (map_empty ())
 

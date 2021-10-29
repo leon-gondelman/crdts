@@ -67,7 +67,11 @@ let stabilizing_deliver deliver local_map (set : (('value msg) alist) ref) stabi
       let vcRefOptional = (list_nth !local_map (snd message)) in   
       let vcRef = match vcRefOptional with | Some a -> a | None -> exit 1 in
       vcRef := (snd (fst message));
-      let stablePred = (fun message -> vect_nth_opt (snd (fst message)) (snd message) <= low_function local_map (snd message)) in 
+      let stablePred = (fun message ->
+         not (vect_bottom_test (snd (fst message))) &&
+         vect_nth_opt (snd (fst message)) (snd message) <= low_function local_map (snd message)
+         ) 
+      in 
       let stableSet = list_filter (fun x -> stablePred x) !set in
       list_iter (stable stabilize_function set) stableSet;
       Some ((fst (fst message), Some (snd (fst message))), snd message)
