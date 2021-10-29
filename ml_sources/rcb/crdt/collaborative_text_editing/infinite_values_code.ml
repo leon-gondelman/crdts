@@ -19,8 +19,8 @@ open Collaborative_editor_shared
     let listcpy = ref list in
     let copyBuilder = ref list_nil in 
     while !i <= depth do 
-      if !i < (list_length !listcpy) then (copyBuilder := (list_append !copyBuilder (list_head listcpy)); listcpy := (list_tail !list_cpy); i := (!i+1))
-      else copyBuilder := list_append !copyBuilder 0; i:=!i+1
+      if !i < (list_length !listcpy) then (copyBuilder := (list_append !copyBuilder (list_head !listcpy)); listcpy := (list_tail !listcpy); i := (!i+1))
+      else copyBuilder := list_append !copyBuilder (list_cons 0 list_nil); i:=!i+1
     done;
     !copyBuilder
 
@@ -30,7 +30,7 @@ let comparator m1 m2 =
   let posList2 = getPosFromPayload m2 in 
   let rec comparatorInner list1 list2 = 
     if list_head list1 = list_head list2 then comparatorInner (list_tail list1) (list_tail list2)
-    else int_of_string (unSOME (list_head list1)) < int_of_string (unSOME (list_head list2))) in 
+    else int_of_string (unSOME (list_head list1)) < int_of_string (unSOME (list_head list2)) in 
   comparatorInner posList1 posList2
 
 let comparator' m1 m2 =  
@@ -38,7 +38,7 @@ let comparator' m1 m2 =
   let posList2 = getPos m2 in 
   let rec comparatorInner list1 list2 = 
     if list_head list1 = list_head list2 then comparatorInner (list_tail list1) (list_tail list2)
-    else int_of_string (unSOME (list_head list1)) < int_of_string (unSOME (list_head list2))) in 
+    else int_of_string (unSOME (list_head list1)) < int_of_string (unSOME (list_head list2)) in 
   comparatorInner posList1 posList2
 
 
@@ -86,7 +86,25 @@ let rel1 (m1 : 'value msg) (m2 : 'value msg) =
         let elementSucPos =  int_of_string (getPos (unSOME elementSuc)) in 
         string_of_float ((elementPrePos + elementSucPos) / 2)  
       )  
-    )  
+    ) 
+    
+  let compute_position state index = 
+    let listLength = list_length state in
+    let indexInt = int_deser index in
+    let sortedState = list_sort comparator' state in  
+    let elementPre = list_nth sortedState (indexInt-1) in
+    let elementSuc = list_nth sortedState indexInt in
+    let elemPrePos = getPos (unSOME elementPre) in 
+    let elemSucPos = getPos (unSOME elementSuc) in 
+    let interval = ref 0 in
+    let depth = ref 0 in 
+    while !interval < 1 do 
+      depth := !depth + 1;
+      interval := (prefix elemSucPos !depth) - (prefix elemPrePos !depth) - 1;
+    done;
+    let step = min !interval 100_000 in 
+    (prefix elemPrePos !depth) + step
+
   
   let get_position state index = 
     let indexInt = int_deser index in 
