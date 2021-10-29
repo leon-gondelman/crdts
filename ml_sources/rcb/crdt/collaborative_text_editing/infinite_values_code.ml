@@ -12,7 +12,7 @@ open Collaborative_editor_shared
 (* Note messages are of the form: (((operation, (position alist, value)), vector clock), origin), 
   the set contains whole messages *)
 
-  let base = 2*10_00000
+  let base = 2*1_000_000
 
   let prefix list depth = 
     let i = ref 1 in 
