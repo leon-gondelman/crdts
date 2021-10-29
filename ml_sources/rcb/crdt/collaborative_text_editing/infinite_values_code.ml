@@ -14,6 +14,16 @@ open Collaborative_editor_shared
 
   let base = 2*10_00000
 
+  let prefix list depth = 
+    let i = ref 1 in 
+    let listcpy = ref list in
+    let copyBuilder = ref list_nil in 
+    while !i <= depth do 
+      if !i < (list_length !listcpy) then (copyBuilder := (list_append !copyBuilder (list_head listcpy)); listcpy := (list_tail !list_cpy); i := (!i+1))
+      else copyBuilder := list_append !copyBuilder 0; i:=!i+1
+    done;
+    !copyBuilder
+
 
 let comparator m1 m2 = 
   let posList1 = getPosFromPayload m1 in 
