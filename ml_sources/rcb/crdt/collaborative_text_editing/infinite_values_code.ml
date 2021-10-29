@@ -62,16 +62,19 @@ let rel1 (m1 : 'value msg) (m2 : 'value msg) =
       (* elementSucPos and elementPrePos computations have to wait, 
       since we need to make sure we don't get assertion fails with unSOME *)
       if indexInt = 0 then (
-        let elementSucPos =  float_of_string (getPos (unSOME elementSuc)) in 
-        string_of_float (Float.div elementSucPos  2.0)
+        (*Change to check each level of the array*)
+        let elementSucPos =  int_of_string (getPos (unSOME elementSuc)) in 
+        string_of_float (elementSucPos / 2)
       )
-      else if indexInt = list_length sortedState then  
-        let elementPrePos = float_of_string (getPos (unSOME elementPre)) in
-        string_of_float (Float.div (Float.add elementPrePos 1.0) 2.0)
+      else if indexInt = list_length sortedState then 
+        (*Change to consider every level of the array*) 
+        let elementPrePos = int_of_string (getPos (unSOME elementPre)) in
+        string_of_float ((elementPrePos + 1) / 2)
       else (
-        let elementPrePos = float_of_string (getPos (unSOME elementPre)) in
-        let elementSucPos =  float_of_string (getPos (unSOME elementSuc)) in 
-        string_of_float (Float.div (Float.add elementPrePos elementSucPos) 2.0)  
+        (*Change to check each level of the array*)
+        let elementPrePos = int_of_string (getPos (unSOME elementPre)) in
+        let elementSucPos =  int_of_string (getPos (unSOME elementSuc)) in 
+        string_of_float ((elementPrePos + elementSucPos) / 2)  
       )  
     )  
   
