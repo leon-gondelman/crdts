@@ -7,17 +7,13 @@ open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
 open Network_util_code
+open Collaborative_editor_shared
 
 
 (* Note messages are of the form: (((operation, (position, value)), vector clock), origin), 
   the set contains whole messages *)
 
-let getOp (m : 'value msg) = fst (fst (fst m))
-let getPos (m : 'value msg) = fst (snd (fst (fst m)))
-let getVal (m : 'value msg) = snd (snd (fst (fst m)))
-let getVC (m : 'value msg) = snd (fst m)
-let getOr (m : 'value msg) = snd m 
-let getPosFromPayload p = fst (snd p) 
+
 let comparator m1 m2 = float_of_string (getPosFromPayload m1) < float_of_string (getPosFromPayload m2)
 let comparator' m1 m2 = float_of_string (getPos m1) < float_of_string (getPos m2)
 
@@ -85,11 +81,6 @@ let get_position state index =
   let sortedState = list_sort comparator' state in
   getPos (unSOME (list_nth sortedState indexInt))
   
-let is_valid_index state index = 
-  let indexInt = int_deser index in
-  if list_length state = 0 && indexInt = 0 then true
-  else if (indexInt < 0) || (indexInt > (list_length state)) then false
-  else true  
   
 let known_queries =
   map_insert
@@ -97,8 +88,6 @@ let known_queries =
     (fun pset -> list_iter (fun m -> Printf.printf "(%s,%s)" (fst (snd m)) (snd (snd m))) 
       (list_sort comparator pset)) 
     (map_empty ())
-
-let stabilize _m s = s
 
 let serializer = {s_ser = prod_ser string_ser (prod_ser string_ser string_ser); 
                   s_deser = prod_deser string_deser (prod_deser string_deser string_deser)}

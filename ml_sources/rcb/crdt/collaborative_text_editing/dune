@@ -1,4 +1,24 @@
+(library
+ (name collaborative_editor_shared)
+ (flags :standard -rectypes)
+ (libraries aneris rcb_stabilise rcb_minimal_code pure_op_based_framework)
+ (modules Collaborative_editor_shared))
+
+ (library
+ (name collaborative_editor_runner_shared)
+ (flags :standard -rectypes)
+ (libraries aneris rcb_stabilise rcb_minimal_code pure_op_based_framework)
+ (modules Collaborative_editor_runner_shared))
+
+
+
 (executable
   (name finite_values_runner)
   (flags :standard -rectypes)
-  (libraries rcb_stabilise pure_op_based_framework rcb_minimal_code rcb_code aneris))
+  (libraries rcb_stabilise pure_op_based_framework rcb_minimal_code rcb_code aneris collaborative_editor_shared collaborative_editor_runner_shared)
+  (modules Finite_values_runner Finite_values_code))
+(executable
+ (name infinite_values_runner)
+ (flags :standard -rectypes)
+ (libraries rcb_stabilise pure_op_based_framework rcb_minimal_code rcb_code aneris collaborative_editor_shared collaborative_editor_runner_shared)
+ (modules Infinite_values_runner Infinite_values_code))
