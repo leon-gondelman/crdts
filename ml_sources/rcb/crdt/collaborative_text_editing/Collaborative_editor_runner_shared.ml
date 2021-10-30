@@ -42,7 +42,7 @@ let init_exec editor_init =
       let query = fst utilities in 
       let prepare = snd utilities in
 
-      Printf.printf "----------- Welcome To The Finite Collaborative Text Editor  -----------\n";
+      Printf.printf "----------- Welcome To The Collaborative Text Editor  -----------\n";
       Printf.printf " - 'read' to read the text\n"; 
       Printf.printf " - 'write x y' to write 'y' at index 'x'\n";
       Printf.printf " - 'delete x' to delete the character at index x\n"; 

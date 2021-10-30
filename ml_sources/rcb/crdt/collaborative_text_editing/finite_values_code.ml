@@ -63,7 +63,6 @@ let get_position state index =
   let sortedState = list_sort comparator' state in
   getPos (unSOME (list_nth sortedState indexInt))
   
-  
 let known_queries =
   map_insert
     "read"
