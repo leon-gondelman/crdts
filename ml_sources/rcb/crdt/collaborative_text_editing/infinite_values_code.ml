@@ -18,14 +18,13 @@ let serializer = {s_ser = prod_ser string_ser (prod_ser (list_ser int_ser) strin
   s_deser = prod_deser string_deser (prod_deser (list_deser int_deser) string_deser)}
 
 let prefix (list : int aset) (depth : int) = 
-  let i = ref 1 in 
-  let listcpy = ref list in
+  let i = ref 0 in 
   let copyBuilder = ref list_nil in 
-  while !i <= depth do 
-    if !i <= (list_length !listcpy) 
-    then (copyBuilder := (list_append !copyBuilder (list_cons (unSOME (list_head !listcpy)) None));
-    listcpy := (list_tail !listcpy); 
-    i := (!i+1))
+  while !i <= depth do (* OCaml is insane and automatically increments i without making it obvious *)
+    if !i < (list_length list) 
+    then (
+      copyBuilder := (list_append !copyBuilder (list_cons (unSOME (list_nth list !i)) list_nil));
+    )
     else copyBuilder := list_append !copyBuilder (list_cons 0 list_nil); i:=!i+1
   done;
   !copyBuilder
