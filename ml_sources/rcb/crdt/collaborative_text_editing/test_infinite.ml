@@ -23,17 +23,11 @@ let testPrefix =
   test_and_print (prefix testList 4) "[2500,500000,0,0,]"
 let testSubtractPositions = 
   Printf.printf "\nTestineg subtract_positions on list 1 and 2\n";
-  Printf.printf "Result = [";
-  list_iter (Printf.printf "%d,") (subtract_positions testList testList2);
-  Printf.printf "]\n";
-  Printf.printf "Expect = [2000,499000,]\n"
+  test_and_print (subtract_positions testList testList2) "[2000,499000,]"
 
   let testSubtractPositions2 = 
     Printf.printf "\nTestineg subtract_positions on list 1 and 3\n";
-    Printf.printf "Result = [";
-    list_iter (Printf.printf "%d,") (subtract_positions testList testList3);
-    Printf.printf "]\n";
-    Printf.printf "Expect = [-12000,0,0,]\n"
+    test_and_print (subtract_positions testList testList3) "[-12000,0,0,]"
 
     let testSubtractPositions3 = 
       Printf.printf "\nTestineg subtract_positions on list 3 and 1\n";
