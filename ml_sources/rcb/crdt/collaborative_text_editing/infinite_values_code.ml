@@ -20,7 +20,7 @@ let serializer = {s_ser = prod_ser string_ser (prod_ser (list_ser int_ser) strin
 let prefix (list : int aset) (depth : int) = 
   let i = ref 0 in 
   let copyBuilder = ref list_nil in 
-  while !i <= depth do (* OCaml is insane and automatically increments i without making it obvious *)
+  while !i < depth do (* OCaml is insane and automatically increments i without making it obvious *)
     if !i < (list_length list) 
     then (
       copyBuilder := (list_append !copyBuilder (list_cons (unSOME (list_nth list !i)) list_nil));
