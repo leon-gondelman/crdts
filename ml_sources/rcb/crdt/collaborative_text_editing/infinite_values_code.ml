@@ -56,7 +56,7 @@ let rec le_positions p1 p2 =
         if a < b then true 
         else if a > b then false
         else le_positions (list_tail p1) (list_tail p2)  
-    | None, None -> true
+    | None, None -> false
     | _ -> assert false
   in
   let (p1', p2') = padListWithAppendZero p1 p2 in
@@ -146,7 +146,7 @@ let compute_position state index =
                                 (list_cons 1 None) 
       in
       interval := subtract_positions subtraction const;     
-      paddedOne := snd (padListWithPrependedZero !interval (list_cons 1 None))       
+      paddedOne := const       
     done;
     let (inter, const) = padListWithPrependedZero !interval (list_cons stepGlobal None) in
     let step = min_positions inter const in   
