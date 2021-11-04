@@ -56,7 +56,7 @@ let rec le_positions p1 p2 =
         if a < b then true 
         else if a > b then false
         else le_positions (list_tail p1) (list_tail p2)  
-    | None, None -> true
+    | None, None -> false
     | _ -> assert false
   in
   let (p1', p2') = padListWithAppendZero p1 p2 in
@@ -145,7 +145,11 @@ let compute_position state index =
                                 (subtract_positions (prefix !elemSucPos !depth) (prefix !elemPrePos !depth)) 
                                 (list_cons 1 None) 
       in
-      interval := subtract_positions subtraction const;     
+      interval := subtract_positions subtraction const; 
+      Printf.printf "How big is interval?\n";
+      list_iter (fun x -> Printf.printf "%d," x) !interval;
+      Printf.printf "\n";  
+      flush_all ();
       paddedOne := snd (padListWithPrependedZero !interval (list_cons 1 None))       
     done;
     let (inter, const) = padListWithPrependedZero !interval (list_cons stepGlobal None) in
