@@ -1,7 +1,8 @@
 #!/bin/bash
 
+BASEDIR=$(dirname $0)
 
-EXE="~/crdts/_build/default/ml_sources/rcb/crdt/collaborative_text_editing/infinite_values_runner.exe"
+EXE="$BASEDIR/../../../../_build/default/ml_sources/rcb/crdt/collaborative_text_editing/infinite_values_runner.exe"
 
 RUN () {
    osascript -e 'tell application "Terminal" to do script "'"${EXE//\"/\\\"} ${1//\"/\\\"}  ${2//\"/\\\"}  ${3//\"/\\\"}  ${4//\"/\\\"} "'"'
