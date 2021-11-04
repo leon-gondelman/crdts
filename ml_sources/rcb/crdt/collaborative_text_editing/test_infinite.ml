@@ -51,6 +51,13 @@ let testLePosition3 =
   Printf.printf "\nTesting le_position on 2 and 3\n";
   test_and_print resultList "[1,]"
 
+let testLePositionEq = 
+  let result = le_positions testList3 testList3 in 
+  let resultList = if result then (list_cons 1 list_nil) else (list_cons 0 list_nil) in
+  Printf.printf "\nTesting le_position on 3 and 3\n";
+  test_and_print resultList "[0,]"
+  
+
 
 
 let testPrefix =
