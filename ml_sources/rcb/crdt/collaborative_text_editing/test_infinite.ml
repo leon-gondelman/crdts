@@ -71,11 +71,11 @@ let testSubtractPositions =
 
 let testSubtractPositions2 = 
   Printf.printf "\nTestineg subtract_positions on list 1 and 3\n\n";
-  test_and_print (subtract_positions testList testList3) "[-12000,0,0,]"
+  test_and_print (subtract_positions testList testList3) "[-9500,497500,-500000,]"
 
 let testSubtractPositions3 = 
   Printf.printf "\nTestineg subtract_positions on list 3 and 1\n\n";
-  test_and_print (subtract_positions testList3 testList) "[12000,0,0,]"
+  test_and_print (subtract_positions testList3 testList) "[9500,-497500,500000,]"
 
 
 let () =
