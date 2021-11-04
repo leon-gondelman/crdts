@@ -153,8 +153,12 @@ let compute_position state index =
                                 (subtract_positions (prefix !elemSucPos !depth) (prefix !elemPrePos !depth) base) 
                                 (list_cons 1 None) 
       in
-      interval := subtract_positions subtraction const base;     
-      paddedOne := const       
+      interval := subtract_positions subtraction const base; 
+      Printf.printf "How big is interval?\n";
+      list_iter (fun x -> Printf.printf "%d," x) !interval;
+      Printf.printf "\n";  
+      flush_all ();
+      paddedOne := snd (padListWithPrependedZero !interval (list_cons 1 None))       
     done;
     let (inter, const) = padListWithPrependedZero !interval (list_cons stepGlobal None) in
     let step = min_positions inter const in   

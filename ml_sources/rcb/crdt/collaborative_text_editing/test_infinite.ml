@@ -71,18 +71,20 @@ let testPadding =
   Printf.printf "\nTesting prepending 0s to pad list lengths 2\n";
   test_and_print res2 "[42,12000,2500,500000,]"
 
+let testListBase10_1 = list_cons 2 (list_cons 0 list_nil)
+let testListBase10_2 = list_cons 1 (list_cons 1 list_nil)
 
 let testSubtractPositions = 
   Printf.printf "\nTestineg subtract_positions on list 1 and 2\n\n";
-  test_and_print (subtract_positions testList testList2) "[2000,499000,]"
+  test_and_print (subtract_positions 10 testListBase10_1 testListBase10_2) "[0,9,]"
 
 let testSubtractPositions2 = 
-  Printf.printf "\nTestineg subtract_positions on list 1 and 3\n\n";
-  test_and_print (subtract_positions testList testList3) "[-9500,497500,-500000,]"
+  Printf.printf "\nTestineg subtract_positions on list 2 and 2\n\n";
+  test_and_print (subtract_positions 10 testListBase10_2 testListBase10_2) "[0,-9,]"
 
 let testSubtractPositions3 = 
   Printf.printf "\nTestineg subtract_positions on list 3 and 1\n\n";
-  test_and_print (subtract_positions testList3 testList) "[9500,-497500,500000,]"
+  test_and_print (subtract_positions 10 testList3 testList) "[9500,-497500,500000,]"
 
 
 let () =
