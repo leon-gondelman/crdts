@@ -38,24 +38,35 @@ let padListWithPrependedZero l1 l2 =
   let paddedRev = prefix reversedList maxLength in 
   let padded = list_rev paddedRev in 
   if maxLength = length1 then (l1,padded) else (padded, l2)
+
+let rec le_positions p1 p2 = 
+  let inner p1 p2 = 
+   match list_head p1, list_head p2 with
+    | Some a, Some b -> 
+        if a < b then true 
+        else if a > b then false
+        else le_positions (list_tail p1) (list_tail p2)  
+    | None, None -> true
+    | _ -> assert false
+  in
+  let (p1', p2') = padListWithPrependedZero p1 p2 in
+  inner p1' p2'    
+
+let min_positions p1 p2 =
+  if le_positions p1 p2 then p1 else p2
+  
   
 
 let comparator m1 m2 = 
   let posList1 = getPosFromPayload m1 in 
-  let posList2 = getPosFromPayload m2 in 
-  let rec comparatorInner list1 list2 = 
-    if list_head list1 = list_head list2 then comparatorInner (list_tail list1) (list_tail list2)
-    else unSOME (list_head list1) < unSOME (list_head list2) in 
-  comparatorInner posList1 posList2
+  let posList2 = getPosFromPayload m2 in
+  le_positions posList1 posList2
 
 let comparator' m1 m2 =  
   let posList1 : int aset = getPos m1 in 
   let posList2 : int aset = getPos m2 in 
-  let rec comparatorInner list1 list2 = 
-    if list_head list1 = list_head list2 then comparatorInner (list_tail list1) (list_tail list2)
-    else unSOME (list_head list1) < unSOME (list_head list2) in 
-  comparatorInner posList1 posList2
-
+  le_positions posList1 posList2 
+  
 let rel (m1 : 'value msg) (s : 'value msg aset) =
   let rec concurrentAndLoss set = 
     match list_head set with
@@ -81,19 +92,6 @@ let subtract_positions p1 p2 =
   in  
   let (p1', p2') = padListWithPrependedZero p1 p2 in
   inner p1' p2'
-
-let rec le_positions p1 p2 = 
-  let inner p1 p2 = 
-   match list_head p1, list_head p2 with
-    | Some a, Some b -> 
-        if a < b then true 
-        else if a > b then false
-        else le_positions (list_tail p1) (list_tail p2)  
-    | None, None -> true
-    | _ -> assert false
-  in
-  let (p1', p2') = padListWithPrependedZero p1 p2 in
-  inner p1' p2'  
    
 let addition_positions (p1 : int aset) (p2 : int aset) =
   let rec inner p1 p2 =
@@ -105,8 +103,6 @@ let addition_positions (p1 : int aset) (p2 : int aset) =
   let (p1', p2') = padListWithPrependedZero p1 p2 in
   inner p1' p2'
 
-let min_positions p1 p2 =
-  if le_positions p1 p2 then p1 else p2
 
 let compute_position state index = 
   if list_length state = 0 then (
@@ -126,6 +122,7 @@ let compute_position state index =
       elemSucPos := list_cons base None;
       let elementPre = list_nth sortedState (indexInt-1) in
       elemPrePos := getPos (unSOME elementPre); 
+      
     ) else (
       let elementPre = list_nth sortedState (indexInt-1) in
       let elementSuc = list_nth sortedState indexInt in
