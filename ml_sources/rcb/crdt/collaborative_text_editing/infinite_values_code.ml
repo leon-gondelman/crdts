@@ -139,7 +139,10 @@ let compute_position state index =
                 (list_cons 1 None);                
     done;
     let step = min_positions !interval (list_cons stepGlobal None) in 
-    addition_positions (prefix !elemPrePos !depth) step
+    if (unSOME (list_head (list_rev !elemPrePos)) = base) then
+      subtract_positions (prefix !elemSucPos !depth) step
+    else   
+      addition_positions (prefix !elemPrePos !depth) step
   )
                           
 let get_position state (index : string) : int aset = 
