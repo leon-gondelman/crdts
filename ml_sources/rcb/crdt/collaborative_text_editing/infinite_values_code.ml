@@ -13,6 +13,7 @@ open Collaborative_editor_shared
   the set contains whole messages *)
 
 let base = 1_000_000
+let stepGlobal = 10000
 
 let serializer = {s_ser = prod_ser string_ser (prod_ser (list_ser int_ser) string_ser); 
   s_deser = prod_deser string_deser (prod_deser (list_deser int_deser) string_deser)}
@@ -66,7 +67,7 @@ let comparator' m1 m2 =
   let posList1 : int aset = getPos m1 in 
   let posList2 : int aset = getPos m2 in 
   le_positions posList1 posList2 
-  
+
 let rel (m1 : 'value msg) (s : 'value msg aset) =
   let rec concurrentAndLoss set = 
     match list_head set with
@@ -137,7 +138,7 @@ let compute_position state index =
                 (subtract_positions (prefix !elemSucPos !depth) (prefix !elemPrePos !depth)) 
                 (list_cons 1 None);                
     done;
-    let step = min_positions !interval (list_cons 10000 None) in 
+    let step = min_positions !interval (list_cons stepGlobal None) in 
     addition_positions (prefix !elemPrePos !depth) step
   )
                           
