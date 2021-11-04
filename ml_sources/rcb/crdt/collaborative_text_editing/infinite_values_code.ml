@@ -35,9 +35,7 @@ let padListWithPrependedZero l1 l2 =
   let length2 = list_length l2 in 
   let maxLength = max length1 length2 in 
   let listToOperateOn = (if maxLength = length1 then l2 else l1) in 
-  let reversedList = list_rev listToOperateOn in 
-  let paddedRev = prefix reversedList maxLength in 
-  let padded = list_rev paddedRev in 
+  let padded = prefix listToOperateOn maxLength in 
   if maxLength = length1 then (l1,padded) else (padded, l2)
 
 let rec le_positions p1 p2 = 
@@ -50,7 +48,7 @@ let rec le_positions p1 p2 =
     | None, None -> true
     | _ -> assert false
   in
-  let (p1', p2') = padListWithPrependedZero p1 p2 in
+  let (p1', p2') = padListWithAppendZero p1 p2 in
   inner p1' p2'    
 
 let min_positions p1 p2 =
@@ -89,7 +87,7 @@ let subtract_positions p1 p2 =
     | None, None -> None
     | _ -> assert false
   in  
-  let (p1', p2') = padListWithPrependedZero p1 p2 in
+  let (p1', p2') = padListWithAppendZero p1 p2 in
   inner p1' p2'
    
 let addition_positions (p1 : int aset) (p2 : int aset) =
@@ -99,7 +97,7 @@ let addition_positions (p1 : int aset) (p2 : int aset) =
     | None, None -> None
     | _ -> assert false
   in  
-  let (p1', p2') = padListWithPrependedZero p1 p2 in
+  let (p1', p2') = padListWithAppendZero p1 p2 in
   inner p1' p2'
 
 
@@ -129,17 +127,24 @@ let compute_position state index =
     );
     let interval = ref None in
     let depth = ref 0 in 
-    while le_positions !interval (list_cons 1 None)  do 
+    let paddedOne = ref (list_cons 1 None) in
+    while le_positions !interval !paddedOne  do 
       depth := !depth + 1;
-      interval := subtract_positions 
-                (subtract_positions (prefix !elemSucPos !depth) (prefix !elemPrePos !depth)) 
-                (list_cons 1 None);                
+      let (subtraction, const) = padListWithPrependedZero 
+                                (subtract_positions (prefix !elemSucPos !depth) (prefix !elemPrePos !depth)) 
+                                (list_cons 1 None) 
+      in
+      interval := subtract_positions subtraction const;     
+      paddedOne := snd (padListWithPrependedZero !interval (list_cons 1 None))       
     done;
-    let step = min_positions !interval (list_cons stepGlobal None) in 
+    let (inter, const) = padListWithPrependedZero !interval (list_cons stepGlobal None) in
+    let step = min_positions inter const in 
     if (unSOME (list_head (list_rev !elemPrePos)) = base) then
-      subtract_positions (prefix !elemSucPos !depth) step
+      let (value, paddedStep) = padListWithPrependedZero (prefix !elemSucPos !depth) step in
+      subtract_positions value paddedStep
     else   
-      addition_positions (prefix !elemPrePos !depth) step
+      let (value, paddedStep) = padListWithPrependedZero (prefix !elemPrePos !depth) step in
+      addition_positions value paddedStep
   )
                           
 let get_position state (index : string) : int aset = 

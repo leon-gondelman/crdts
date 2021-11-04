@@ -1,5 +1,6 @@
 #!/bin/bash
 
+BASEDIR=$(dirname $0)
 
 EXE="Documents/uniProjekter/crdts/_build/default/ml_sources/rcb/crdt/collaborative_text_editing/infinite_values_runner.exe"
 
