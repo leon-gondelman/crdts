@@ -57,9 +57,6 @@ let testLePositionEq =
   Printf.printf "\nTesting le_position on 3 and 3\n";
   test_and_print resultList "[0,]"
   
-
-
-
 let testPrefix =
   Printf.printf "Testing prefix of testList\n\n";
   test_and_print (prefix testList 4) "[2500,500000,0,0,]"
@@ -76,16 +73,11 @@ let testListBase10_2 = list_cons 1 (list_cons 1 list_nil)
 
 let testSubtractPositions = 
   Printf.printf "\nTestineg subtract_positions on list 1 and 2\n\n";
-  test_and_print (subtract_positions 10 testListBase10_1 testListBase10_2) "[0,9,]"
+  test_and_print (subtract_positions testListBase10_1 testListBase10_2 10) "[0,9,]"
 
 let testSubtractPositions2 = 
   Printf.printf "\nTestineg subtract_positions on list 2 and 2\n\n";
-  test_and_print (subtract_positions 10 testListBase10_2 testListBase10_2) "[0,-9,]"
-
-let testSubtractPositions3 = 
-  Printf.printf "\nTestineg subtract_positions on list 3 and 1\n\n";
-  test_and_print (subtract_positions 10 testList3 testList) "[9500,-497500,500000,]"
-
+  test_and_print (subtract_positions testListBase10_2 testListBase10_2 10) "[0,-9,]"
 
 let () =
   Printf.printf "\n\027[1mAll tests finished\n";
