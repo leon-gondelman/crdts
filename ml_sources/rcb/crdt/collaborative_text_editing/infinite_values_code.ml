@@ -149,13 +149,9 @@ let compute_position state index =
       paddedOne := snd (padListWithPrependedZero !interval (list_cons 1 None))       
     done;
     let (inter, const) = padListWithPrependedZero !interval (list_cons stepGlobal None) in
-    let step = min_positions inter const in 
-    if (unSOME (list_head (list_rev !elemPrePos)) = base) then
-      let (value, paddedStep) = padListWithPrependedZero (prefix !elemSucPos !depth) step in
-      subtract_positions value paddedStep
-    else   
-      let (value, paddedStep) = padListWithPrependedZero (prefix !elemPrePos !depth) step in
-      addition_positions value paddedStep
+    let step = min_positions inter const in   
+    let (value, paddedStep) = padListWithPrependedZero (prefix !elemPrePos !depth) step in
+    addition_positions value paddedStep
   )
                           
 let get_position state (index : string) : int aset = 
