@@ -48,7 +48,7 @@ let testMinPos2 =
 let testLePosition3 = 
   let result = le_positions testList2 testList3 in 
   let resultList = if result then (list_cons 1 list_nil) else (list_cons 0 list_nil) in
-  Printf.printf "\nTesting le_position on 2 and 3";
+  Printf.printf "\nTesting le_position on 2 and 3\n";
   test_and_print resultList "[1,]"
 
 
