@@ -76,8 +76,8 @@ let testSubtractPositions =
   test_and_print (subtract_positions testListBase10_1 testListBase10_2 10) "[0,9,]"
 
 let testSubtractPositions2 = 
-  Printf.printf "\nTestineg subtract_positions on list 2 and 2\n\n";
-  test_and_print (subtract_positions testListBase10_2 testListBase10_2 10) "[0,-9,]"
+  Printf.printf "\nTestineg subtract_positions on list 2 and 1\n\n";
+  test_and_print (subtract_positions testListBase10_2 testListBase10_1 10) "[0,-9,]"
 
 let () =
   Printf.printf "\n\027[1mAll tests finished\n";
