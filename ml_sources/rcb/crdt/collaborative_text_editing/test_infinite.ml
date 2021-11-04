@@ -23,6 +23,25 @@ let testList2 = list_cons 500 (list_cons 1_000 list_nil)
 let testList3 = list_cons 12_000 (list_cons 2_500 (list_cons 500_000 list_nil))
 let testList4 = list_cons 42 (list_cons 12_000 (list_cons 2_500 (list_cons 500_000 list_nil)))
 
+let testLePosition = 
+  let result = le_positions testList2 testList in 
+  let resultList = if result then (list_cons 1 list_nil) else (list_cons 0 list_nil) in
+  Printf.printf "\nTesting le_position on 2 and 1";
+  test_and_print resultList "[1,]"
+
+  let testLePosition2 = 
+    let result = le_positions testList3 testList2 in 
+    let resultList = if result then (list_cons 1 list_nil) else (list_cons 0 list_nil) in
+    Printf.printf "\nTesting le_position on 3 and 2";
+    test_and_print resultList "[0,]"
+  
+let testLePosition3 = 
+  let result = le_positions testList2 testList3 in 
+  let resultList = if result then (list_cons 1 list_nil) else (list_cons 0 list_nil) in
+  Printf.printf "\nTesting le_position on 2 and 3";
+  test_and_print resultList "[1,]"
+
+
 
 let testPrefix =
   Printf.printf "Testing prefix of testList\n\n";
