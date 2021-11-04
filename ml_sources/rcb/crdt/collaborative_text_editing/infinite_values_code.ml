@@ -85,7 +85,10 @@ let subtract_positions p1 p2 =
 let rec le_positions p1 p2 = 
   let inner p1 p2 = 
    match list_head p1, list_head p2 with
-    | Some a, Some b -> if a < b then le_positions (list_tail p1) (list_tail p2) else false
+    | Some a, Some b -> 
+        if a < b then true 
+        else if a > b then false
+        else le_positions (list_tail p1) (list_tail p2)  
     | None, None -> true
     | _ -> assert false
   in
@@ -102,19 +105,8 @@ let addition_positions (p1 : int aset) (p2 : int aset) =
   let (p1', p2') = padListWithPrependedZero p1 p2 in
   inner p1' p2'
 
-let min_position_and_10000 p = 
-  let reversed = list_rev p in
-  let rec inner pos = 
-    match list_head pos with
-    | Some a -> if a > 0 then true else inner (list_tail pos)
-    | None -> false
-  in
-  if inner (list_tail reversed) then list_cons 10000 None
-  else (
-    if unSOME (list_head reversed) > 10000 then list_cons 10000 None
-    else list_cons (unSOME (list_head reversed)) None           
-  )  
-
+let min_positions p1 p2 =
+  if le_positions p1 p2 then p1 else p2
 
 let compute_position state index = 
   if list_length state = 0 then (
@@ -153,7 +145,7 @@ let compute_position state index =
     (list_iter (Printf.printf "%d\n") (!elemSucPos));
     flush_all ();                  
     done;
-    let step = min_position_and_10000 !interval  in 
+    let step = min_positions !interval (list_cons 10000 None) in 
     Printf.printf "step:\n";
     (list_iter (Printf.printf "%d\n") (last_level_addition (prefix !elemPrePos !depth) step !depth));
     Printf.printf "return value:\n";
