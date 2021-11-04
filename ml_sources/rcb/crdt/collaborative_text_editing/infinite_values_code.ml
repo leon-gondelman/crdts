@@ -66,30 +66,31 @@ let subtract_positions p1 p2 =
     match list_head p1, list_head p2 with
     | Some a, Some b -> list_cons (a-b) (inner (list_tail p1) (list_tail p2))
     | None, None -> None
-    | Some a, None -> list_cons (a) (inner (list_tail p1) None)
-    | None, Some b -> list_cons (-b) (inner (None) (list_tail p2))     
-  in
-  list_rev (inner (list_rev p1) (list_rev p2))
+    | _ -> assert false
+  in  
+  let (p1', p2') = padListWithPrependedZero p1 p2 in
+  inner p1' p2'
 
 let rec le_positions p1 p2 = 
-  match list_head p1, list_head p2 with
-  | Some a, Some b -> if a < b then le_positions (list_tail p1) (list_tail p2) else false
-  | None, None -> true
-  | Some _, None -> false
-  | None, Some _ -> true
+  let inner p1 p2 = 
+   match list_head p1, list_head p2 with
+    | Some a, Some b -> if a < b then le_positions (list_tail p1) (list_tail p2) else false
+    | None, None -> true
+    | _ -> assert false
+  in
+  let (p1', p2') = padListWithPrependedZero p1 p2 in
+  inner p1' p2'  
+   
+let addition_positions (p1 : int aset) (p2 : int aset) =
+  let rec inner p1 p2 =
+    match list_head p1, list_head p2 with
+    | Some a, Some b -> list_cons (a+b) (inner (list_tail p1) (list_tail p2))
+    | None, None -> None
+    | _ -> assert false
+  in  
+  let (p1', p2') = padListWithPrependedZero p1 p2 in
+  inner p1' p2'
 
-let rec le_one p = 
-  match list_head p with
-  | Some a -> if a < 1 then le_one (list_tail p) else false
-  | None -> true    
-
-(* This function assumes that we adding the position n on the last level 
-or creating a new level and adding it. It also assymes that n is a single level position  *) 
-let last_level_addition (p : int aset) (n : int aset) l =
-  let value = list_nth p (l-1) in
-  match value with
-  | None -> list_append p n
-  | Some a -> list_update p (l-1) (a)
 
 let min_position_and_10000 p = 
   let reversed = list_rev p in
@@ -132,7 +133,7 @@ let compute_position state index =
     );
     let interval = ref None in
     let depth = ref 0 in 
-    while le_one !interval do 
+    while le_positions !interval (list_cons 1 None)  do 
       depth := !depth + 1;
       Printf.printf "depth: %d\n" !depth;
       interval := subtract_positions 

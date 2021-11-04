@@ -18,10 +18,10 @@ let testList = list_cons 2_500 (list_cons 500_000 list_nil)
 let testList2 = list_cons 500 (list_cons 1_000 list_nil)
 let testList3 = list_cons 12_000 (list_cons 2_500 (list_cons 500_000 list_nil))
 
-let testPrefix =
+let testPrefix () =
   Printf.printf "Testing prefix of testList\n";
   test_and_print (prefix testList 4) "[2500,500000,0,0,]"
-let testSubtractPositions = 
+let testSubtractPositions  = 
   Printf.printf "\nTestineg subtract_positions on list 1 and 2\n";
   test_and_print (subtract_positions testList testList2) "[2000,499000,]"
 
