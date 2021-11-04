@@ -30,7 +30,18 @@ let prefix (list : int aset) (depth : int) =
   done;
   !copyBuilder
 
-let padListWithPrependedZero l1 l2 = 
+  let padListWithPrependedZero l1 l2 = 
+    let length1 = list_length l1 in 
+    let length2 = list_length l2 in 
+    let maxLength = max length1 length2 in 
+    let listToOperateOn = (if maxLength = length1 then l2 else l1) in 
+    let reversedList = list_rev listToOperateOn in 
+    let paddedRev = prefix reversedList maxLength in 
+    let padded = list_rev paddedRev in 
+    if maxLength = length1 then (l1,padded) else (padded, l2)
+  
+
+let padListWithAppendedZero l1 l2 = 
   let length1 = list_length l1 in 
   let length2 = list_length l2 in 
   let maxLength = max length1 length2 in 
