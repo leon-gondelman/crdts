@@ -29,17 +29,17 @@ let testSubtractPositions =
   Printf.printf "\nTestineg subtract_positions on list 1 and 2\n\n";
   test_and_print (subtract_positions testList testList2) "[2000,499000,]"
 
-  let testSubtractPositions2 = 
-    Printf.printf "\nTestineg subtract_positions on list 1 and 3\n\n";
-    test_and_print (subtract_positions testList testList3) "[-12000,0,0,]"
+let testSubtractPositions2 = 
+  Printf.printf "\nTestineg subtract_positions on list 1 and 3\n\n";
+  test_and_print (subtract_positions testList testList3) "[-12000,0,0,]"
 
-    let testSubtractPositions3 = 
-      Printf.printf "\nTestineg subtract_positions on list 3 and 1\n\n";
-test_and_print (subtract_positions testList3 testList) "[12000,0,0,]"
+let testSubtractPositions3 = 
+  Printf.printf "\nTestineg subtract_positions on list 3 and 1\n\n";
+  test_and_print (subtract_positions testList3 testList) "[12000,0,0,]"
 
 
-    let () =
-      Printf.printf "\n\027[1mAll tests finished\n";
-      let color = if testsRun = testsPass then "\027[1;4;32m" else "\027[1;4;31m" in 
-      Printf.printf "%s%d/%d tests successfull\n" color !testsPass !testsRun;
-      if testsPass = testsRun then Printf.printf "All tests passed successfully!\027[0m\n" else Printf.printf "Some tests failed!\027[0m\n"
+let () =
+  Printf.printf "\n\027[1mAll tests finished\n";
+  let color = if testsRun = testsPass then "\027[1;4;32m" else "\027[1;4;31m" in 
+  Printf.printf "%s%d/%d tests successfull\n" color !testsPass !testsRun;
+  if testsPass = testsRun then Printf.printf "All tests passed successfully!\027[0m\n" else Printf.printf "Some tests failed!\027[0m\n"
