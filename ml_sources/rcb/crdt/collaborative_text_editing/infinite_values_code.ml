@@ -12,8 +12,8 @@ open Collaborative_editor_shared
 (* Note messages are of the form: (((operation, (position, value)), vector clock), origin), 
   the set contains whole messages *)
 
-let base = 1_000_000
-let stepGlobal = 10000
+let base = 10
+let stepGlobal = 1
 
 let serializer = {s_ser = prod_ser string_ser (prod_ser (list_ser int_ser) string_ser); 
   s_deser = prod_deser string_deser (prod_deser (list_deser int_deser) string_deser)}
@@ -56,8 +56,6 @@ let rec le_positions p1 p2 =
 let min_positions p1 p2 =
   if le_positions p1 p2 then p1 else p2
   
-  
-
 let comparator m1 m2 = 
   let posList1 = getPosFromPayload m1 in 
   let posList2 = getPosFromPayload m2 in
@@ -123,7 +121,6 @@ let compute_position state index =
       elemSucPos := list_cons base None;
       let elementPre = list_nth sortedState (indexInt-1) in
       elemPrePos := getPos (unSOME elementPre); 
-      
     ) else (
       let elementPre = list_nth sortedState (indexInt-1) in
       let elementSuc = list_nth sortedState indexInt in
@@ -153,7 +150,9 @@ let get_position state (index : string) : int aset =
 let known_queries =
   map_insert
     "read"
-    (fun pset -> list_iter (fun m -> Printf.printf "(%s)" (snd (snd m))) 
+    (fun pset -> 
+      list_iter (fun m -> Printf.printf "(%s)" (snd (snd m));
+                            (list_iter (fun x -> Printf.printf "%d," x) (fst (snd m)))) 
     (list_sort comparator pset)) 
     (map_empty ())
   
