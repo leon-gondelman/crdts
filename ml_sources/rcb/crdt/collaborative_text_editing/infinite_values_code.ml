@@ -110,7 +110,6 @@ let min_positions p1 p2 =
 
 let compute_position state index = 
   if list_length state = 0 then (
-    (list_iter (Printf.printf "%d\n") (list_cons (base/2) None));
     list_cons (base/2) None
   )
   else (  
@@ -137,20 +136,11 @@ let compute_position state index =
     let depth = ref 0 in 
     while le_positions !interval (list_cons 1 None)  do 
       depth := !depth + 1;
-      Printf.printf "depth: %d\n" !depth;
       interval := subtract_positions 
                 (subtract_positions (prefix !elemSucPos !depth) (prefix !elemPrePos !depth)) 
-                (list_cons 1 None);
-    Printf.printf "prefix:\n";
-    (list_iter (Printf.printf "%d\n") (!elemSucPos));
-    flush_all ();                  
+                (list_cons 1 None);                
     done;
     let step = min_positions !interval (list_cons 10000 None) in 
-    Printf.printf "step:\n";
-    (list_iter (Printf.printf "%d\n") (addition_positions (prefix !elemPrePos !depth) step));
-    Printf.printf "return value:\n";
-    (list_iter (Printf.printf "%d\n") (addition_positions (prefix !elemPrePos !depth) step));
-    flush_all ();
     addition_positions (prefix !elemPrePos !depth) step
   )
                           
