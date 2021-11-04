@@ -29,6 +29,17 @@ let prefix (list : int aset) (depth : int) =
   done;
   !copyBuilder
 
+let padListsWithPrependedZero l1 l2 = 
+  let length1 = list_length l1 in 
+  let length2 = list_length l2 in 
+  let maxLength = max length1 length2 in 
+  let listToOperateOn = (if maxLength = length1 then l1 else l2) in 
+  let reversedList = list_rev listToOperateOn in 
+  let paddedRev = prefix reversedList maxLength in 
+  let padded = list_rev paddedRev in 
+  if maxLength = length1 then (padded,l2) else (l1, padded)
+  
+
 let comparator m1 m2 = 
   let posList1 = getPosFromPayload m1 in 
   let posList2 = getPosFromPayload m2 in 
@@ -90,7 +101,6 @@ let addition_positions (p1 : int aset) (p2 : int aset) =
   in  
   let (p1', p2') = padListWithPrependedZero p1 p2 in
   inner p1' p2'
-
 
 let min_position_and_10000 p = 
   let reversed = list_rev p in
