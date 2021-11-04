@@ -21,10 +21,21 @@ let test_and_print result expected =
 let testList = list_cons 2_500 (list_cons 500_000 list_nil)
 let testList2 = list_cons 500 (list_cons 1_000 list_nil)
 let testList3 = list_cons 12_000 (list_cons 2_500 (list_cons 500_000 list_nil))
+let testList4 = list_cons 42 (list_cons 12_000 (list_cons 2_500 (list_cons 500_000 list_nil)))
+
 
 let testPrefix =
   Printf.printf "Testing prefix of testList\n\n";
   test_and_print (prefix testList 4) "[2500,500000,0,0,]"
+
+let testPadding = 
+  let (res1, res2) = padListWithPrependedZero testList testList4 in 
+  Printf.printf "\nTesting prepending 0s to pad list lengths\n"; 
+  test_and_print res1 "[0,0,2500,500000,]";
+  Printf.printf "\nTesting prepending 0s to pad list lengths 2\n";
+  test_and_print res2 "[42,12000,2500,500000,]"
+
+
 let testSubtractPositions = 
   Printf.printf "\nTestineg subtract_positions on list 1 and 2\n\n";
   test_and_print (subtract_positions testList testList2) "[2000,499000,]"

@@ -29,15 +29,15 @@ let prefix (list : int aset) (depth : int) =
   done;
   !copyBuilder
 
-let padListsWithPrependedZero l1 l2 = 
+let padListWithPrependedZero l1 l2 = 
   let length1 = list_length l1 in 
   let length2 = list_length l2 in 
   let maxLength = max length1 length2 in 
-  let listToOperateOn = (if maxLength = length1 then l1 else l2) in 
+  let listToOperateOn = (if maxLength = length1 then l2 else l1) in 
   let reversedList = list_rev listToOperateOn in 
   let paddedRev = prefix reversedList maxLength in 
   let padded = list_rev paddedRev in 
-  if maxLength = length1 then (padded,l2) else (l1, padded)
+  if maxLength = length1 then (l1,padded) else (padded, l2)
   
 
 let comparator m1 m2 = 
@@ -155,11 +155,11 @@ let compute_position state index =
     done;
     let step = min_position_and_10000 !interval  in 
     Printf.printf "step:\n";
-    (list_iter (Printf.printf "%d\n") (last_level_addition (prefix !elemPrePos !depth) step !depth));
+    (list_iter (Printf.printf "%d\n") (addition_positions (prefix !elemPrePos !depth) step));
     Printf.printf "return value:\n";
-    (list_iter (Printf.printf "%d\n") (last_level_addition (prefix !elemPrePos !depth) step !depth));
+    (list_iter (Printf.printf "%d\n") (addition_positions (prefix !elemPrePos !depth) step));
     flush_all ();
-    last_level_addition (prefix !elemPrePos !depth) step !depth
+    addition_positions (prefix !elemPrePos !depth) step
   )
                           
 let get_position state (index : string) : int aset = 
