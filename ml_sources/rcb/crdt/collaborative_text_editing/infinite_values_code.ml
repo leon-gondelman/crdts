@@ -41,7 +41,7 @@ let prefix (list : int aset) (depth : int) =
     if maxLength = length1 then (l1,padded) else (padded, l2)
   
 
-let padListWithAppendedZero l1 l2 = 
+let padListWithAppendZero l1 l2 = 
   let length1 = list_length l1 in 
   let length2 = list_length l2 in 
   let maxLength = max length1 length2 in 
