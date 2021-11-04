@@ -91,15 +91,23 @@ let rel0 (m1 : 'value msg) (m2 : 'value msg) =
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
   vect_conc_opt (getVC m1) (getVC m2) && getOr m2 < getOr m1  
 
-let subtract_positions p1 p2 =
-  let rec inner p1 p2 =
-    match list_head p1, list_head p2 with
-    | Some a, Some b -> list_cons (a-b) (inner (list_tail p1) (list_tail p2))
+let subtract_positions p1 p2 base =
+  let carry = ref 0 in
+  let rec inner p1 p2 = 
+    match list_head p1, list_head p2 with 
+    | Some a, Some b -> (
+      let result = ref (a-b-(!carry)) in 
+      if !result < 0 then (carry := 1; result := base-(!result));
+      list_cons !result (inner (list_tail p1) (list_tail p2))
+    )
     | None, None -> None
-    | _ -> assert false
-  in  
+    | _, _ -> assert false
+  in 
   let (p1', p2') = padListWithAppendZero p1 p2 in
-  inner p1' p2'
+  let p1'' = list_rev p1' in 
+  let p2'' = list_rev p2' in 
+  list_rev (inner p1'' p2'')
+
    
 let addition_positions (p1 : int aset) (p2 : int aset) =
   let rec inner p1 p2 =
@@ -142,10 +150,10 @@ let compute_position state index =
     while le_positions !interval !paddedOne  do 
       depth := !depth + 1;
       let (subtraction, const) = padListWithPrependedZero 
-                                (subtract_positions (prefix !elemSucPos !depth) (prefix !elemPrePos !depth)) 
+                                (subtract_positions (prefix !elemSucPos !depth) (prefix !elemPrePos !depth) base) 
                                 (list_cons 1 None) 
       in
-      interval := subtract_positions subtraction const;     
+      interval := subtract_positions subtraction const base;     
       paddedOne := const       
     done;
     let (inter, const) = padListWithPrependedZero !interval (list_cons stepGlobal None) in
