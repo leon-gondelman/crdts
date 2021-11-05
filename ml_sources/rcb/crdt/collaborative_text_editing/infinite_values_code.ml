@@ -97,7 +97,7 @@ let subtract_positions p1 p2 base =
     match list_head p1, list_head p2 with 
     | Some a, Some b -> (
       let result = ref (a-b-(!carry)) in 
-      if !result < 0 then (carry := 1; result := base-(!result)) else carry := 0;
+      if !result < 0 then (carry := 1; result := base+(!result)) else carry := 0;
       list_cons !result (inner (list_tail p1) (list_tail p2))
     )
     | None, None -> None
