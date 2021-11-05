@@ -56,6 +56,9 @@ You can also write a script like `.../ml_sources/rcb/crdt/counter/run.sh`
 which will launch all needed terminals automatically.
 The run scripts in the repo right now are adapted to the paths used for testing during development, and are not relative to CWD.
 The run scripts also use AppleScript for Terminal manipulation but the idea of the run script may easily be adapted to relevant platform of choice.
+There exists run scripts already in many of the folders and these may be adapted by the user to speed up executing the CRDTs - If AppleScript is available, only modifying the EXE path's beginning to point to the correct location for the repository is required.
+
+In addition to the regular CRDT executables, a small testing executable exists in the collaborative text editing directory with a small set of tests that were used in debugging the infinite text editor. This same pattern can be used to test other parts of the repository.
 
 # 4. Translation to AnerisLang (Coq) using o2a compiler. (Optional)
 
