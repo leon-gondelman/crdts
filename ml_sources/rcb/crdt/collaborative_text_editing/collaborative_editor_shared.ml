@@ -8,6 +8,9 @@ open Vector_clock_code
 open Pure_op_based_framework
 open Network_util_code
 
+(* Note messages are of the form: (((operation, (position, value)), vector clock), origin), 
+  the set contains whole messages *)
+
 let getOp (m : 'value msg) = fst (fst (fst m))
 let getPos (m : 'value msg) = fst (snd (fst (fst m)))
 let getVal (m : 'value msg) = snd (snd (fst (fst m)))

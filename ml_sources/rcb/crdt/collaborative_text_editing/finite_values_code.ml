@@ -13,7 +13,6 @@ open Collaborative_editor_shared
 (* Note messages are of the form: (((operation, (position, value)), vector clock), origin), 
   the set contains whole messages *)
 
-
 let comparator m1 m2 = float_of_string (getPosFromPayload m1) < float_of_string (getPosFromPayload m2)
 let comparator' m1 m2 = float_of_string (getPos m1) < float_of_string (getPos m2)
 

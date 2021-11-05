@@ -11,7 +11,6 @@ open Collaborative_editor_shared
 
 (* Note messages are of the form: (((operation, (position, value)), vector clock), origin), 
   the set contains whole messages *)
-
 let base = 10
 let stepGlobal = 1
 
