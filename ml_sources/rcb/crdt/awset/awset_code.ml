@@ -10,8 +10,15 @@ open Map_code
 
     let serialiser = {s_ser = prod_ser string_ser string_ser; s_deser = prod_deser string_deser string_deser}
 
-    let rel = (fun m _ -> fst (fst (fst m)) = "clear" || fst (fst (fst m)) = "rmv")
-    let rel01 = (fun m1 m2 -> (vect_leq_opt (snd (fst m1)) (snd (fst m2))) && ((fst (fst (fst m2)) = "clear") || (snd (fst (fst m1)) = snd (fst (fst m2)))))
+    let rel = (fun m _ ->
+      let (((op,_value), _vc),_or) = m in 
+      op = "clear" || op = "rmv"
+    )
+    let rel01 = (fun m1 m2 -> 
+      let (((_op1,value1), vc1),or1) = m1 in
+      let (((op2,value2), vc2),or2) = m2 in 
+      vect_leq_opt vc1 vc2 && op2 = "clear" || value1 = value2
+    )
     let stabilize _ s = s
     let read set = 
       let mappet = list_map (fun x -> snd (x)) set in
