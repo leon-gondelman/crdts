@@ -18,10 +18,8 @@ let op_deser = string_deser
 let eval query (set:string aset) = if query = "elems" then (InjL set) else (InjR (set_cardinal set))
 
 let effect message set = 
-    let toAdd = (fst (fst message)) in 
+    let ((toAdd, _vc), _origin) = message in 
     set_add toAdd set
-
-exception NotPossible
 
 let elems lock (set:string aset ref) () =
     acquire lock;
@@ -29,7 +27,7 @@ let elems lock (set:string aset ref) () =
     release lock;
     match res with
     | InjL set -> set
-    | _ -> prerr_string "Not possible"; raise NotPossible
+    | _ -> assert false (*Should be an impossible state*)
 
 let size lock set () =
     acquire lock; 
@@ -37,7 +35,7 @@ let size lock set () =
     release lock;
     match res with 
     | InjR size -> size 
-    | _ -> prerr_string "Not Possible"; raise NotPossible
+    | _ -> assert false (*Should be an impossible state*)
 
 let prepare lock broadcast set value =
     acquire lock; 

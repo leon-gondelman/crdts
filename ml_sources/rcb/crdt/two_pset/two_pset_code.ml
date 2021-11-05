@@ -18,8 +18,7 @@ let op_deser = prod_deser string_deser string_deser
 let eval query (set:string aset) = if query = "elems" then (InjL set) else (InjR (set_cardinal set))
 
 let effect message addSet removeSet = 
-    let op = fst (fst (fst message)) in 
-    let value = snd (fst (fst message)) in 
+    let (((op,value),_vc),_or) = message in
     if op = "add" && not (set_mem value removeSet) then (
     ( removeSet, set_add value addSet ))
     else if op = "rmv" then (

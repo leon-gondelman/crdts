@@ -18,8 +18,8 @@ open Map_code
       op = "clear" || op = "rmv"
     )
     let rel01 = (fun m1 m2 -> 
-      let (((_op1,value1), vc1),or1) = m1 in
-      let (((op2,value2), vc2),or2) = m2 in 
+      let (((_op1,value1), vc1),_or1) = m1 in
+      let (((op2,value2), vc2),_or2) = m2 in 
       vect_leq_opt vc1 vc2 && op2 = "clear" || value1 = value2
     )
     let stabilize _ s = s

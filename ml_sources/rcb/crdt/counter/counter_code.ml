@@ -14,7 +14,7 @@ let op_deser = int_deser
 let eval counter = counter
 
 let effect msg counter =
-  let delta = (fst (fst msg)) in
+  let ((delta,_vc), _origin) = msg in
   counter + delta
 
 let read lock counter () =
