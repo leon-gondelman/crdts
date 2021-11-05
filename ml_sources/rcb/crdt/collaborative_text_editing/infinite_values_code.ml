@@ -118,12 +118,12 @@ let rec negation (p : int aset) : int aset =
                        else list_cons (-h) (list_tail p) 
   | None -> None
 
-(* subtraction is only defined for lists representing natural numbers *)    
+(* Subtraction is only defined for lists representing natural numbers *)    
 let subtract_positions (p1 : int aset) (p2 : int aset) (base : int) : int aset =    
   if le_positions p2 p1 then subtract_positions' p1 p2 base 
                         else negation (subtract_positions' p2 p1 base)
 
-(* addition is only defined for lists representing natural numbers *)                            
+(* Addition is only defined for lists representing natural numbers *)                            
 let addition_positions (p1 : int aset) (p2 : int aset) (base : int) : int aset =
   let rec inner carryRef p1 p2 =
     match list_head p1, list_head p2 with
@@ -147,6 +147,8 @@ let addition_positions (p1 : int aset) (p2 : int aset) (base : int) : int aset =
   let p2'' = list_rev p2' in 
   list_rev (inner carryRef p1'' p2'')
 
+(* The idea of the compute position function is to show that arbitrary precision can be achieved. 
+   Optimizations do exist. *)  
 let compute_position state index = 
   if list_length state = 0 then (
     list_cons (base/2) None
