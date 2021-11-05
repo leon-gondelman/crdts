@@ -127,7 +127,7 @@ let addition_positions (p1 : int aset) (p2 : int aset) (base : int) : int aset =
     | Some a, Some b -> 
       let value = a + b + !carryRef in
       carryRef := 0;
-      let res = if value >= (base - 1) 
+      let res = if value >= base 
                 then (carryRef := 1; value - base) 
                 else (carryRef := 0; value)
       in        
@@ -185,7 +185,11 @@ let compute_position state index =
       paddedOne := snd (padListWithPrependedZero !interval (list_cons 1 None))       
     done;
     let (inter, const) = padListWithPrependedZero !interval (list_cons stepGlobal None) in
-    let step = min_positions inter const in   
+    let step = min_positions inter const in
+    Printf.printf "How big is setp?\n";
+    list_iter (fun x -> Printf.printf "%d," x) step;
+    Printf.printf "\n";  
+    flush_all ();   
     if (unSOME (list_head (list_rev !elemPrePos)) = base-1) then (
       let (value, paddedStep) = padListWithPrependedZero 
                                 (prefix !elemPrePos ((!depth) + 1))
@@ -193,9 +197,19 @@ let compute_position state index =
       addition_positions value paddedStep base
     )
     else (
+      Printf.printf "In else branch\n";
+      flush_all ();  
     let (value, paddedStep) = padListWithPrependedZero 
                               (prefix !elemPrePos !depth) 
                               step in
+     Printf.printf "How big is value?\n";
+    list_iter (fun x -> Printf.printf "%d," x) value;
+    Printf.printf "\n";  
+    flush_all ();   
+    Printf.printf "How big is paddedStep?\n";
+    list_iter (fun x -> Printf.printf "%d," x) paddedStep;
+    Printf.printf "\n";  
+    flush_all ();                             
     addition_positions value paddedStep base
     )
   )
