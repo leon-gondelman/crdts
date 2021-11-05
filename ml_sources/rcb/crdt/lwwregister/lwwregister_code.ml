@@ -7,6 +7,9 @@ open Set_code
 open Vector_clock_code
 open Pure_op_based_framework
 
+(* Note messages are of the form: ((( operation, value), vector clock), origin), 
+  the set contains whole messages *)
+
 let rel (m1 : 'value msg) (s : 'value msg aset) =
   match list_head s with
   | Some m2 ->

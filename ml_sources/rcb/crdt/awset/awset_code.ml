@@ -8,6 +8,9 @@ open Pure_op_based_framework
 open Map_code
 
 
+  (* Note messages are of the form: (((operation, value), vector clock), origin), 
+  the set contains whole messages *)
+
     let serialiser = {s_ser = prod_ser string_ser string_ser; s_deser = prod_deser string_deser string_deser}
 
     let rel = (fun m _ -> fst (fst (fst m)) = "clear" || fst (fst (fst m)) = "rmv")

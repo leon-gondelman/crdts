@@ -7,9 +7,11 @@ open Vector_clock_code
 open Map_code
 open Pure_op_based_framework
 
-  let rel = (fun m _ -> fst (fst (fst m)) = "clear")
-  let rel01 = (fun m1 m2 -> vect_leq_opt (snd (fst m1)) (snd (fst m2)))
-  let stabilize = (fun _ x -> x)
+(* Note messages are of the form: ((( operation, value), vector clock), origin), 
+  the set contains whole messages *)
+let rel = (fun m _ -> fst (fst (fst m)) = "clear")
+let rel01 = (fun m1 m2 -> vect_leq_opt (snd (fst m1)) (snd (fst m2)))
+let stabilize = (fun _ x -> x)
 
 let op_ser = prod_ser string_ser string_ser 
 let op_deser = prod_deser string_deser string_deser

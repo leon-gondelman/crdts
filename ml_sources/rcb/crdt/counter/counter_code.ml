@@ -2,6 +2,9 @@ open Ast
 open Rcb_code
 open Serialization_code
 
+(* Note messages are of the form: (( value, vector clock), origin), 
+  the set contains whole messages *)
+
 type counter = int
 
 let op_ser = int_ser

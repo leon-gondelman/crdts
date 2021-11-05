@@ -8,13 +8,12 @@ open Vector_clock_code
 open Pure_op_based_framework
 open Rcb_stabilise
 
-(* Note messages are of the form: ((operation, value), vector clock), origin) . *)
-
+(* Note messages are of the form: ((( operation, value), vector clock), origin), 
+  the set contains whole messages *)
 let getOP m = fst (fst (fst m))
 let getVal m = snd (fst (fst m))
 let getVC m = snd (fst m)
 
-(* TODO: can we move this to list code *)  
 let list_mem_test t l = 
   match list_filter t l with
   | Some _ -> true
