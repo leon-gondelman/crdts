@@ -119,6 +119,30 @@ let addition_positions (p1 : int aset) (p2 : int aset) =
   let (p1', p2') = padListWithAppendZero p1 p2 in
   inner p1' p2'
 
+  let addition_positions (p1 : int aset) (p2 : int aset) =
+    let rec inner carryRef p1 p2 =
+      match list_head p1, list_head p2 with
+      | Some a, Some b -> 
+        let value = a + b + !carryRef in
+        carryRef := 0;
+        let res = if value >= 9 
+                  then (carryRef := 1; value-10) 
+                  else (carryRef := 0; value)
+        in        
+        list_cons res (inner carryRef (list_tail p1) (list_tail p2))  
+      | None, None -> 
+        if !carryRef = 1 
+        then list_cons 1 None
+        else None    
+      | _ -> assert false
+    in  
+    let carryRef = ref 0 in
+    let (p1', p2') = padListWithAppendZero p1 p2 in
+    let p1'' = list_rev p1' in 
+    let p2'' = list_rev p2' in 
+    list_rev (inner carryRef p1'' p2'')
+
+
 
 let compute_position state index = 
   if list_length state = 0 then (
