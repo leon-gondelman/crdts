@@ -21,7 +21,7 @@ let serializer = {s_ser = prod_ser string_ser (prod_ser (list_ser int_ser) strin
 let prefix (list : int aset) (depth : int) = 
   let i = ref 0 in 
   let copyBuilder = ref list_nil in 
-  while !i < depth do (* OCaml is insane and automatically increments i without making it obvious *)
+  while !i < depth do (* OCaml automatically increments i without making it obvious *)
     if !i < (list_length list) 
     then (
       copyBuilder := (list_append !copyBuilder (list_cons (unSOME (list_nth list !i)) list_nil));
@@ -91,6 +91,7 @@ let rel0 (m1 : 'value msg) (m2 : 'value msg) =
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
   vect_conc_opt (getVC m1) (getVC m2) && getOr m2 < getOr m1  
 
+
 let subtract_positions' (p1 : int aset) (p2 : int aset) (base : int) = 
   let rec inner carryRef p1 p2 =
     match list_head p1, list_head p2 with
@@ -117,10 +118,12 @@ let rec negation (p : int aset) : int aset =
                        else list_cons (-h) (list_tail p) 
   | None -> None
 
+(* subtraction is only defined for lists representing natural numbers *)    
 let subtract_positions (p1 : int aset) (p2 : int aset) (base : int) : int aset =    
   if le_positions p2 p1 then subtract_positions' p1 p2 base 
                         else negation (subtract_positions' p2 p1 base)
 
+(* addition is only defined for lists representing natural numbers *)                            
 let addition_positions (p1 : int aset) (p2 : int aset) (base : int) : int aset =
   let rec inner carryRef p1 p2 =
     match list_head p1, list_head p2 with
