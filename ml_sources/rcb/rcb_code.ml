@@ -5,6 +5,9 @@ open Network_util_code
 open Vector_clock_code
 open Serialization_code
 
+type 'a outqueues = (('a * vector_clock) * int) queue alist
+type 'a inqueue = (('a * vector_clock) * int) alist
+
 let rep_id_ser = int_ser
 
 let rep_id_deser = int_deser
@@ -50,7 +53,7 @@ let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues =
   (* Send the first message in out-queue `q` to its destination *)
   let send_head j q =
     (* We don't send to ourselves, so the out-queue must be empty *)
-    if (j = i) then assert (queue_is_empty q);
+    (* if (j = i) then (); assert (queue_is_empty q) TODO: prove this *)
     match (queue_peek_opt q) with
       Some msg ->
         (* This could be the first time we're sending this message, or we could be
@@ -58,26 +61,28 @@ let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues =
           Don't remove the message from the queue, since we might
           need to retransmit in the future.  *)
           let dest = unSOME (list_nth nodes j) in
-          ignore(sendTo socket_handler (msg_ser val_ser (InjR msg)) dest)
+          (* Append to the message our id, since we're the sender *)
+          ignore(sendTo socket_handler (msg_ser val_ser (InjR (msg, i))) dest)
       | None -> ()
   in
   loop_forever (fun () ->
     acquire lock;
     list_iteri send_head !outQueues;
     release lock;
+    (* Thread.delay 1.0 *)
     )
 
-let send_ack socket_handler origId sn senderId dest_addr =
+let send_ack (val_ser[@metavar]) socket_handler origId sn senderId dest_addr =
   let ack = InjL ((origId, sn), senderId) in
   (* Since we're serializing an InjL, we can pass in a dummy 'val_ser'
      of 'unit_ser' *)
-  let ack_raw = msg_ser unit_ser ack in
+  let ack_raw = msg_ser val_ser ack in
   ignore(sendTo socket_handler ack_raw dest_addr)
 
 let prune_ack origId sn q =
   match (queue_peek_opt q) with
     Some e ->
-      let (((_p, vc), origMsg), _s) = e in
+      let ((_p, vc), origMsg) = e in
       let snMsg = vect_nth vc origId in
       if (origMsg = origId && snMsg = sn) then
         let x = unSOME (queue_take_opt q) in
@@ -87,14 +92,7 @@ let prune_ack origId sn q =
         q
   | None -> q
 
-let prune_bcst bcOrig bcSn queue =
-  queue_filter (fun m ->
-    let (((_p, vc), origId), _s) = m in
-    let msgSn = vect_nth vc origId in
-    origId = bcOrig && msgSn <= bcSn)
-    queue
-
-let recv_thread (val_deser[@metavar]) i socket_handler lock addrlst inQueue outQueues seen =
+let recv_thread (val_ser[@metavar]) (val_deser[@metavar]) i socket_handler lock addrlst (inQueue : 'b inqueue ref) (outQueues : 'a outqueues ref) seen =
   let receive msg =
     match msg with
     | InjL ackMsg -> 
@@ -107,42 +105,40 @@ let recv_thread (val_deser[@metavar]) i socket_handler lock addrlst inQueue outQ
       let origSn = vect_nth vc origId in
       let senderAddr = unSOME (list_nth addrlst senderId) in
       (* acknowledge immediately *)
-      send_ack socket_handler origId origSn i senderAddr;
+      send_ack val_ser socket_handler origId origSn i senderAddr;
       (* To determine whether to put this message in the in-queue,
          check that its seqnum is higher than the highest seqnum 
          of the originator ever placed in the in-queue. *)
       let seenSn = vect_nth !seen origId in
       if (seenSn < origSn) then
+      begin
         seen := vect_update !seen origId origSn;
         (* In stop-and-wait, origSn can be higher by at most one, because
            otherwise whoever sent origSn would've sent origSn - 1 first.
            *)
-        assert (origSn = seenSn + 1);
-        inQueue := list_cons bcstMsg !inQueue;
-        (* Use the broadcast's timestamp to prune the sender's out-queue. *)
-        let senderQ = unSOME (list_nth !outQueues senderId) in
-        let senderQ' = prune_bcst origId origSn senderQ in
-        outQueues := list_update !outQueues senderId senderQ';
+        (* assert (origSn = seenSn + 1); TODO: uncomment but marks as `unsafe` in the translation *)
+        inQueue := list_cons ((payload, vc), origId) !inQueue;
         (* Now re-transmit the broadcast to all nodes other than the sender
            and the originator (and ourselves). *)
         outQueues := list_mapi (fun j q ->
             if (j <> i && j <> senderId && j <> origId) then
               (* Replace the sender id by our id, since we're the ones
                  sending the message this time. *)
-              queue_add (((payload, vc), origId), i) q
+              queue_add ((payload, vc), origId) q
             else q) !outQueues
+      end
   in
   loop_forever (fun () ->
     let msg_raw = fst (unSOME (receiveFrom socket_handler)) in
     let msg = msg_deser val_deser msg_raw in
     acquire lock;
     receive msg;
-    release lock;)
+    release lock)
 
 let is_causally_next vc my_rid =
   let l = list_length vc in
   fun ev ->
-    let (((_payload, ev_vc), orig), _sender) = ev in
+    let ((_payload, ev_vc), orig) = ev in
     if my_rid = orig then
       false
     else if orig < l then
@@ -157,7 +153,7 @@ let deliver vc lock inQueue rid () =
     match remRes with
     | Some p ->
       let (elem, rest) = p in
-      let (((payload, msgVc), orig), _sender) = elem in
+      let ((payload, msgVc), orig) = elem in
       inQueue := rest;
       vc := vect_inc !vc orig;
       Some ((payload, msgVc), orig)
@@ -166,17 +162,17 @@ let deliver vc lock inQueue rid () =
   release lock;
   res
 
-let broadcast vc seen outQueues lock rid payload =
+let broadcast vc seen (outQueues : 'a outqueues ref) lock rid payload =
   acquire lock;
   vc := vect_inc !vc rid;
   let msg = ((payload, !vc), rid) in
   let sn = vect_nth !vc rid in
-  let seenSn = vect_nth !vc rid in
-  assert (sn = seenSn + 1);
+  (* let seenSn = vect_nth !seen rid in *)
+  (* assert (sn = seenSn + 1); TODO: uncomment and mark this as unsupported *)
   seen := vect_update !seen rid sn;
   outQueues := list_mapi (fun j q ->
     (* rid added twice since orig = sender *)
-    if (j <> rid) then queue_add (msg, rid) q
+    if (j <> rid) then queue_add msg q
     else q) !outQueues;
   release lock;
   msg
@@ -189,12 +185,12 @@ let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i =
   let n = list_length addrlst in
   let vc = ref (vect_make n 0) in
   let seen = ref (vect_make n 0) in
-  let inQueue = ref list_nil in
-  let outQueues = ref (list_make n (queue_empty ())) in
+  let inQueue : 'b inqueue ref = ref list_nil in
+  let outQueues : 'a outqueues ref = ref (list_make n (queue_empty ())) in
   let lock = newlock () in
   let socket_handler = socket PF_INET SOCK_DGRAM IPPROTO_UDP in
   let addr = unSOME (list_nth addrlst i) in
   socketBind socket_handler addr;
   fork (send_thread val_ser i socket_handler lock addrlst) outQueues;
-  fork (recv_thread val_deser i socket_handler lock addrlst inQueue outQueues) seen;
+  fork (recv_thread val_ser val_deser i socket_handler lock addrlst inQueue outQueues) seen;
   (deliver vc lock inQueue i, broadcast vc seen outQueues lock i)
