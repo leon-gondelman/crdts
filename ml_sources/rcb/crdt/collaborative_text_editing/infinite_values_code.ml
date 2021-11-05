@@ -91,58 +91,58 @@ let rel0 (m1 : 'value msg) (m2 : 'value msg) =
 let rel1 (m1 : 'value msg) (m2 : 'value msg) =
   vect_conc_opt (getVC m1) (getVC m2) && getOr m2 < getOr m1  
 
-let subtract_positions p1 p2 base =
-  let carry = ref 0 in
-  let rec inner p1 p2 = 
-    match list_head p1, list_head p2 with 
-    | Some a, Some b -> (
-      let result = ref (a-b-(!carry)) in 
-      if !result < 0 then (carry := 1; result := base+(!result)) else carry := 0;
-      list_cons !result (inner (list_tail p1) (list_tail p2))
-    )
-    | None, None -> None
-    | _, _ -> assert false
-  in 
+let subtract_positions' (p1 : int aset) (p2 : int aset) (base : int) = 
+  let rec inner carryRef p1 p2 =
+    match list_head p1, list_head p2 with
+    | Some a, Some b -> 
+      let value = a - b - !carryRef in
+      carryRef := 0;
+      let res = if value < 0 
+                then (carryRef := 1; value + base) 
+                else (carryRef := 0; value)
+      in        
+      list_cons res (inner carryRef (list_tail p1) (list_tail p2))  
+    | None, None -> None   
+    | _ -> assert false
+  in  
+  let carryRef = ref 0 in
   let (p1', p2') = padListWithAppendZero p1 p2 in
   let p1'' = list_rev p1' in 
   let p2'' = list_rev p2' in 
-  list_rev (inner p1'' p2'')
+  list_rev (inner carryRef p1'' p2'')
 
-   
-let addition_positions (p1 : int aset) (p2 : int aset) =
-  let rec inner p1 p2 =
+let rec negation (p : int aset) : int aset =
+  match list_head p with 
+  | Some h -> if h = 0 then list_cons 0 (negation (list_tail p))
+                       else list_cons (-h) (list_tail p) 
+  | None -> None
+
+let subtract_positions (p1 : int aset) (p2 : int aset) (base : int) : int aset =    
+  if le_positions p2 p1 then subtract_positions' p1 p2 base 
+                        else negation (subtract_positions' p2 p1 base)
+
+let addition_positions (p1 : int aset) (p2 : int aset) (base : int) : int aset =
+  let rec inner carryRef p1 p2 =
     match list_head p1, list_head p2 with
-    | Some a, Some b -> list_cons (a+b) (inner (list_tail p1) (list_tail p2))
-    | None, None -> None
+    | Some a, Some b -> 
+      let value = a + b + !carryRef in
+      carryRef := 0;
+      let res = if value >= (base - 1) 
+                then (carryRef := 1; value - base) 
+                else (carryRef := 0; value)
+      in        
+      list_cons res (inner carryRef (list_tail p1) (list_tail p2))  
+    | None, None -> 
+      if !carryRef = 1 
+      then list_cons 1 None
+      else None    
     | _ -> assert false
   in  
+  let carryRef = ref 0 in
   let (p1', p2') = padListWithAppendZero p1 p2 in
-  inner p1' p2'
-
-  let addition_positions (p1 : int aset) (p2 : int aset) =
-    let rec inner carryRef p1 p2 =
-      match list_head p1, list_head p2 with
-      | Some a, Some b -> 
-        let value = a + b + !carryRef in
-        carryRef := 0;
-        let res = if value >= 9 
-                  then (carryRef := 1; value-10) 
-                  else (carryRef := 0; value)
-        in        
-        list_cons res (inner carryRef (list_tail p1) (list_tail p2))  
-      | None, None -> 
-        if !carryRef = 1 
-        then list_cons 1 None
-        else None    
-      | _ -> assert false
-    in  
-    let carryRef = ref 0 in
-    let (p1', p2') = padListWithAppendZero p1 p2 in
-    let p1'' = list_rev p1' in 
-    let p2'' = list_rev p2' in 
-    list_rev (inner carryRef p1'' p2'')
-
-
+  let p1'' = list_rev p1' in 
+  let p2'' = list_rev p2' in 
+  list_rev (inner carryRef p1'' p2'')
 
 let compute_position state index = 
   if list_length state = 0 then (
@@ -190,13 +190,13 @@ let compute_position state index =
       let (value, paddedStep) = padListWithPrependedZero 
                                 (prefix !elemPrePos ((!depth) + 1))
                                 step in
-      addition_positions value paddedStep
+      addition_positions value paddedStep base
     )
     else (
     let (value, paddedStep) = padListWithPrependedZero 
                               (prefix !elemPrePos !depth) 
                               step in
-    addition_positions value paddedStep
+    addition_positions value paddedStep base
     )
   )
                           
