@@ -69,7 +69,7 @@ let send_thread (val_ser[@metavar]) i socket_handler lock nodes outQueues =
     acquire lock;
     list_iteri send_head !outQueues;
     release lock;
-    (* Thread.delay 1.0 *)
+    Thread.delay 7.0
     )
 
 let send_ack (val_ser[@metavar]) socket_handler origId sn senderId dest_addr =

@@ -1,4 +1,4 @@
-include Rcb_minimal_code
+include Rcb_code
 open List_code
 open Vector_clock_code
 open Set_code
