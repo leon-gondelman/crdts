@@ -84,7 +84,7 @@ let stable_broadcast broadcast payload =
   
 
 let rcb_init (val_ser[@metavar]) (val_deser[@metavar]) addrlst i set stabilize_function =
-  let pair = Rcb_minimal_code.rcb_init val_ser val_deser addrlst i in
+  let pair = Rcb_code.rcb_init val_ser val_deser addrlst i in
   let deliver = fst pair in
   let broadcast = snd pair in
   let n = list_length addrlst in
